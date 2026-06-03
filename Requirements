@@ -1,0 +1,111 @@
+# Project Requirements Document: Andiamo! Italian Flashcard & Coach
+
+## 1. Project Overview
+
+Andiamo! is a responsive, single-file web application designed to help travelers learn essential Italian phrases. It combines traditional spaced-repetition-style flashcards with modern Generative AI to provide context-aware explanations and interactive roleplay scenarios.
+
+## 2. Target User
+
+Persona: English-speaking travelers preparing for a trip to Italy.
+
+Goal: Rapidly acquire functional vocabulary, practice pronunciation, and simulate common social interactions (ordering food, checking into hotels, asking for directions).
+
+Environment: Mobile-first, intended for use on the go.
+
+## 3. Functional Requirements
+
+### 3.1. Flashcard Module
+
+Card Structure: Each card must contain an Italian phrase, English translation, category tag, and (optionally) a phonetic guide.
+
+Interaction:
+
+Single-tap to flip animation (3D perspective).
+
+Navigation buttons (Previous/Next) and keyboard shortcuts.
+
+Mastery Tracking:
+
+Users can mark cards as "Known" to remove them from the active study session.
+
+"Practice" status keeps the card in the rotation.
+
+Progress tracking (Percentage complete) visual feedback.
+
+Customization: Support for user-generated cards via AI-assisted translation.
+
+### 3.2. AI Coach Module (Gemini Integration)
+
+Contextual Explanation: When a user selects "Ask Gemini," the app sends the current card content to the Gemini API to receive a breakdown including:
+
+Cultural context/tips.
+
+Pronunciation advice.
+
+Usage examples.
+
+Custom Card Generation: Users can input English phrases, and the system must return a JSON response containing the Italian translation, phonetic guide, and the correct category classification.
+
+### 3.3. AI Roleplay Chat Module
+
+Scenario Selection: The app must support predefined scenarios (e.g., Ristorante, Hotel, Treno, Indicazioni).
+
+Interactive Dialogue:
+
+Real-time chat interface.
+
+System must provide immediate, gentle grammatical corrections in brackets within the chat stream.
+
+The coach must maintain persona consistency (e.g., the helpful Venetian local or the efficient Roman concierge).
+
+### 3.4. Utility Features
+
+Dictionary Directory: A searchable, filterable list of all available vocabulary.
+
+Text-to-Speech (TTS): Use the Web Speech API to provide audio pronunciation. Must support adjustable speed (0.5x to 1.5x) and dialect selection where available.
+
+Data Persistence: LocalStorage usage to save the user's progress, custom cards, and configuration settings across browser sessions.
+
+## 4. Technical Requirements
+
+Architecture: Single-file HTML (HTML5 + Tailwind CSS + Vanilla JavaScript).
+
+Responsiveness: Mobile-first design; minimum viable resolution of $320 \times 568$ pixels.
+
+Performance:
+
+CSS animations must run at 60 FPS (using transform and opacity properties).
+
+API calls must include an exponential backoff retry mechanism to handle transient network issues.
+
+Browser Compatibility: Chrome, Safari, Firefox, and Edge (latest versions).
+
+Security: API Keys must be handled securely (in the current implementation, users should be prompted to input their own, or the environment must be configured to hide the key).
+
+## 5. Non-Functional Requirements
+
+Usability:
+
+Minimalist interface; the UI must not distract from the language learning content.
+
+All interactions must be performable with one thumb (mobile optimization).
+
+Offline Mode:
+
+The core flashcard deck must function without an internet connection.
+
+AI features (Explanation Drawer, Roleplay Chat) must display a graceful, user-friendly "Offline" state if the connection is lost.
+
+Accessibility:
+
+Logical tab order for keyboard navigation.
+
+High-contrast color schemes for text readability.
+
+## 6. Future Considerations
+
+Authentication: Implement user login to sync progress across multiple devices.
+
+Gamification: Introduce daily streaks or badges to encourage consistent study habits.
+
+Export/Import: Allow users to export their custom flashcard decks to other formats (like Anki).
