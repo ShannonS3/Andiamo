@@ -112,12 +112,12 @@
         </div>
     </nav>
 
-    <!-- Category Flow Grid (Low-profile wrapping design) -->
+    <!-- Category Flow Grid -->
     <section id="category-selector-section" class="bg-stone-105/60 border-b border-stone-200/80 shrink-0">
         <div class="max-w-3xl mx-auto px-4 py-3">
             <p class="text-[10px] text-stone-400 font-bold uppercase tracking-wider mb-2">Select Category</p>
             <div id="category-chips-container" class="flex flex-wrap gap-1.5">
-                <!-- Low-profile wraps generated here dynamically -->
+                <!-- Low-profile chips generated dynamically -->
             </div>
         </div>
     </section>
@@ -146,7 +146,7 @@
                 </div>
             </div>
 
-            <!-- Immersive Flashcard View with strict aspect limits so flip doesn't expand height -->
+            <!-- Immersive Flashcard View -->
             <div class="relative w-full h-48 sm:h-56 md:h-64 flashcard-perspective select-none shrink-0">
                 
                 <!-- Complete State Screen -->
@@ -166,7 +166,7 @@
                     </div>
                 </div>
 
-                <!-- Card Flip Shell (Absolute boundary locked to ensure same space utilization) -->
+                <!-- Card Flip Shell -->
                 <div id="flashcard-inner" class="flashcard-inner w-full h-full cursor-pointer relative" onclick="flipCard()">
                     
                     <!-- FRONT FACE -->
@@ -339,7 +339,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-2">
                 <div>
                     <h2 class="text-sm font-bold text-stone-850">Dictionary Directory</h2>
-                    <p class="text-[9px] text-stone-550 font-medium">Search and hear pronunciation of any trip phrases.</p>
+                    <p class="text-[9px] text-stone-500">Search and hear pronunciation of any trip phrases.</p>
                 </div>
                 
                 <div class="relative w-full sm:max-w-[200px]">
@@ -364,19 +364,19 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h3 class="text-xs font-bold text-stone-800">Parliamo Italiano! (Interactive Roleplay Coach)</h3>
-                        <p class="text-[9px] text-stone-550 font-medium">Choose a travel scenario or make your own custom topic.</p>
+                        <p class="text-[9px] text-stone-550 font-medium">Choose a travel scenario and practice real dialogue.</p>
                     </div>
                     <button onclick="resetChat()" class="text-stone-400 hover:text-red-600 text-[10px] font-bold flex items-center gap-1 transition">
                         <i class="fa-solid fa-arrow-rotate-left"></i> Reset
                     </button>
                 </div>
                 
-                <select id="chat-scenario-select" onchange="startNewScenario()" class="bg-white border border-stone-200 text-xs rounded-xl p-1.5 focus:outline-none text-stone-700 w-full font-medium">
+                <select id="chat-scenario-select" onchange="handleScenarioChange()" class="bg-white border border-stone-200 text-xs rounded-xl p-1.5 focus:outline-none text-stone-700 w-full font-medium">
                     <option value="ristorante">🍷 Ordering at a Florentine Osteria</option>
                     <option value="hotel">🔑 Checking into an Albergo in Rome</option>
                     <option value="treno">🎟️ Buying Train Tickets at Stazione Santa Maria Novella</option>
                     <option value="indicazioni">🗺️ Asking for Directions in Venice</option>
-                    <option value="custom" class="text-indigo-600 font-bold bg-indigo-50">💬 Custom Conversation Topic...</option>
+                    <option value="custom">💬 Let's choose another topic...</option>
                 </select>
             </div>
 
@@ -397,35 +397,7 @@
 
     </main>
 
-    <!-- Custom Topic Selection Modal -->
-    <div id="custom-topic-modal" class="fixed inset-0 bg-stone-950/40 backdrop-blur-xs flex items-end sm:items-center justify-center z-50 p-0 sm:p-4 hidden" onclick="toggleCustomTopicModal(false)">
-        <div class="bg-white rounded-t-2xl sm:rounded-2xl max-w-sm w-full p-6 shadow-xl border border-stone-150 transform translate-y-0 transition-transform duration-300" onclick="event.stopPropagation()">
-            <div class="flex items-center justify-between mb-4 pb-2 border-b border-stone-100">
-                <h3 class="font-bold text-stone-850 text-sm flex items-center gap-2">
-                    <i class="fa-solid fa-comments text-emerald-600"></i> Start Custom Conversation
-                </h3>
-                <button onclick="toggleCustomTopicModal(false)" class="text-stone-400 hover:text-stone-600 transition">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-1">What do you want to talk about?</label>
-                    <input type="text" id="custom-topic-input" placeholder="e.g. Italian football, Gelato recipes, fashion trends..." class="w-full text-xs p-2.5 border border-stone-200 rounded-xl bg-stone-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-emerald-500">
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="toggleCustomTopicModal(false)" class="flex-grow py-2 bg-stone-105 hover:bg-stone-200 text-stone-700 text-xs font-bold rounded-xl transition">
-                        Cancel
-                    </button>
-                    <button onclick="startCustomTopic()" class="flex-grow py-2 bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl transition">
-                        Start Conversation!
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- AI Custom Card Translation Modal (New Feature) -->
+    <!-- AI Custom Card Translation Modal -->
     <div id="create-card-modal" class="fixed inset-0 bg-stone-950/40 backdrop-blur-xs flex items-end sm:items-center justify-center z-50 p-0 sm:p-4 hidden" onclick="toggleCreateModal(false)">
         <div class="bg-white rounded-t-2xl sm:rounded-2xl max-w-sm w-full p-6 shadow-xl border border-stone-150 transform translate-y-0 transition-transform duration-300" onclick="event.stopPropagation()">
             
@@ -604,6 +576,37 @@
         </div>
     </div>
 
+    <!-- Custom Topic Selection Modal -->
+    <div id="custom-topic-modal" class="fixed inset-0 bg-stone-950/40 backdrop-blur-xs flex items-center justify-center z-50 p-4 hidden" onclick="closeCustomTopicModal(false)">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-stone-150 transform translate-y-0 transition-all duration-300" onclick="event.stopPropagation()">
+            
+            <div class="flex items-center justify-between mb-4 pb-2 border-b border-stone-100">
+                <h3 class="font-bold text-stone-850 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-comments text-emerald-600"></i> Set Your Own Chat Topic
+                </h3>
+                <button onclick="closeCustomTopicModal(false)" class="text-stone-400 hover:text-stone-600 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-1">What would you like to practice discussing?</label>
+                    <input type="text" id="custom-topic-input" placeholder="e.g. Talking about football or renting a Vespa" class="w-full text-xs p-2.5 border border-stone-200 rounded-xl bg-stone-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-emerald-500">
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="closeCustomTopicModal(false)" class="flex-1 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-xl transition">
+                        Cancel
+                    </button>
+                    <button onclick="startCustomTopic()" class="flex-1 py-2 bg-emerald-700 hover:bg-emerald-650 text-white text-xs font-bold rounded-xl transition">
+                        Start Dialogue
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
     <!-- Toast container -->
     <div id="toast-container" class="fixed bottom-4 right-4 z-55 pointer-events-none"></div>
 
@@ -649,9 +652,8 @@
             { id: "pl7", category: "Getting Around", italian: "Cinque Terre", english: "Cinque Terre" },
             { id: "pl10", category: "Getting Around", italian: "La Toscana", english: "Tuscany" },
             { id: "pl11", category: "Getting Around", italian: "Genova", english: "Genoa" },
-            { id: "pl13", category: "Getting Around", italian: "Via del Canto dei Nelli", english: "Our street in Florence" },
-            { id: "pl14", category: "Getting Around", italian: "Ristorante Pizzeria Canto dei Nelli", english: "Our neighbor restaurant in Florence" },
-            { id: "pl15", category: "Getting Around", italian: "Firenze Santa Maria Novella", english: "Our train stop in Florence" },
+            { id: "pl14", category: "Getting Around", italian: "Ristorante Pizzeria Canto dei Nelli", english: "Pizzeria on Canto dei Nelli" },
+            { id: "pl15", category: "Getting Around", italian: "Firenze Santa Maria Novella", english: "Train stop in Florence" },
             { id: "ga1", category: "Getting Around", italian: "Stop", english: "Stop" },
             { id: "ga2", category: "Getting Around", italian: "Dov'è…?", english: "Where is…?" },
             { id: "ga3", category: "Getting Around", italian: "A destra", english: "To the right" },
@@ -755,7 +757,7 @@
             { id: "s17", category: "Eat & Shop", italian: "Sto cercando…", english: "I am looking for…" },
             { id: "s18", category: "Eat & Shop", italian: "Ha una borsa?", english: "Do you have a bag?" },
 
-            // Time & Numbers (Giovedì consolidated here cleanly)
+            // Time & Numbers
             { id: "n1", category: "Time & Numbers", italian: "Zero", english: "Zero" },
             { id: "n2", category: "Time & Numbers", italian: "Uno", english: "One" },
             { id: "n3", category: "Time & Numbers", italian: "Due", english: "Two" },
@@ -847,7 +849,7 @@
             
             // AI Roleplay State
             activeScenario: 'ristorante',
-            previousScenarioValue: 'ristorante',
+            previousScenarioValue: 'ristorante', // Backtrack memory for cancelled inputs
             chatHistory: [] // Dialogue bubbles
         };
 
@@ -856,25 +858,25 @@
                 title: "Ordering at a Florentine Osteria",
                 aiPersona: "Vincenzo, the passionate restaurant owner of Osteria del Canto.",
                 initialPrompt: "Say: 'Benvenuti all'Osteria del Canto! Desiderate iniziare con un po' di antipasto toscano o un calice di vino?' ||| Welcome to Osteria del Canto! Would you like to start with some Tuscan antipasto or a glass of wine?",
-                systemPrompt: "You are Vincenzo, a friendly but classic Florentine waiter. Respond ONLY in short, beginner-to-intermediate level Italian (A1-B1 level) using simple sentence structures, common verbs, and high-frequency travel vocabulary. Avoid complex tenses, subjunctive moods, and rare or advanced vocabulary. Keep entries short (1-2 sentences). If user speaks wrong Italian, correct them in English in square brackets [like this] gently before replying. At the very end of your response, you must ALWAYS provide an English translation of your dialogue response, separated from the Italian content by a triple pipe '|||' delimiter. Example: Italian response [grammar correction] ||| English translation"
+                systemPrompt: "You are Vincenzo, a friendly Florentine waiter. Speak ONLY in beginner-to-intermediate level Italian (A1-B1) using simple vocabulary, brief sentences, and basic tenses (avoid complex subjunctives or rare words). Gently correct user errors inside square brackets [in English] before responding. ALWAYS append the English translation at the very end of your response, separated strictly by '|||'."
             },
             hotel: {
                 title: "Checking into an Albergo in Rome",
                 aiPersona: "Alessandra, the efficient concierge at Hotel Roma Centro.",
                 initialPrompt: "Say: 'Buonasera! Benvenuti a Roma. Posso avere i vostri documenti e il nome della prenotazione?' ||| Good evening! Welcome to Rome. May I have your documents and the reservation name?",
-                systemPrompt: "You are Alessandra, concierge in Rome. Speak politely and ONLY in simple beginner-to-intermediate level Italian (A1-B1 level). Restrict your vocabulary to easy, high-frequency standard words for tourists and completely avoid advanced grammatical tenses, subjunctive forms, or complex syntax. Keep responses to 1-2 sentences. Gently correct grammatical mistakes in brackets [in English] before continuing. At the very end of your response, you must ALWAYS provide an English translation of your dialogue response, separated from the Italian content by a triple pipe '|||' delimiter. Example: Italian response [grammar correction] ||| English translation"
+                systemPrompt: "You are Alessandra, concierge in Rome. Speak polite, simple beginner-to-intermediate Italian (A1-B1). Keep answers to 1-2 brief sentences using basic traveler vocabulary. Gently correct user grammar inside square brackets [in English] before responding. ALWAYS append the English translation at the very end of your response, separated strictly by '|||'."
             },
             treno: {
                 title: "Buying Train Tickets",
                 aiPersona: "Marco, the busy clerk at Santa Maria Novella station ticket booth.",
                 initialPrompt: "Say: 'Salve! Ditemi, dove dovete andare oggi? E volete viaggiare in prima o seconda classe?' ||| Hello! Tell me, where do you need to go today? And do you want to travel in first or second class?",
-                systemPrompt: "You are Marco, a fast-paced train ticket seller in Florence. Speak concisely and ONLY in short Italian phrases suitable for beginner-to-intermediate (A1-B1) language learners. Use simple present tense, basic future, or direct traveler requests. Avoid complex grammar rules, passive structures, or rare vocabulary. If user makes a grammatical mistake, write a brief English correction inside brackets [like this], then keep the sale going. At the very end of your response, you must ALWAYS provide an English translation of your dialogue response, separated from the Italian content by a triple pipe '|||' delimiter. Example: Italian response [grammar correction] ||| English translation"
+                systemPrompt: "You are Marco, a fast-paced train ticket seller. Speak in clear, basic, beginner-to-intermediate traveler Italian (A1-B1). Keep your sentences short and direct. If user makes a grammatical mistake, write a brief English correction inside brackets [like this], then keep the sale going. ALWAYS append the English translation at the very end of your response, separated strictly by '|||'."
             },
             indicazioni: {
                 title: "Asking for Directions in Venice",
                 aiPersona: "Giulia, a friendly Venetian local standing near the Rialto Bridge.",
                 initialPrompt: "Say: 'Ciao! Ti vedo con la mappa in mano, ti sei perso? Dove stai cercando di andare?' ||| Hi! I see you with a map in hand, are you lost? Where are you trying to go?",
-                systemPrompt: "You are Giulia, a helpful Venetian resident. Give directional cues (destra, sinistra, dritto) in clear, simple, beginner-to-intermediate level Italian (A1-B1 level). Avoid complex grammatical constructions, rare idioms, or localized Venetian dialect/slang; stick strictly to straightforward standard Italian. Correct any Italian grammar errors in brackets [like this], then suggest the way. At the very end of your response, you must ALWAYS provide an English translation of your dialogue response, separated from the Italian content by a triple pipe '|||' delimiter. Example: Italian response [grammar correction] ||| English translation"
+                systemPrompt: "You are Giulia, a helpful Venetian local. Use simple directions (destra, sinistra, dritto) in clean, traveler-friendly beginner-to-intermediate Italian (A1-B1). Correct user errors inside brackets [like this] if they struggle with sentence structures. ALWAYS append the English translation at the very end of your response, separated strictly by '|||'."
             }
         };
 
@@ -1195,6 +1197,7 @@
             showToast("Shuffled! 🔀");
         }
 
+        // Knowledge mark systems
         function markAsKnown() {
             if (state.deck.length === 0) return;
             const current = state.deck[state.currentIndex];
@@ -1225,6 +1228,7 @@
             modal.classList.remove('hidden');
         }
 
+        // UI Confirm toggles
         function toggleConfirmModal(visible) {
             const modal = document.getElementById('reset-confirm-modal');
             if (visible) modal.classList.remove('hidden');
@@ -1440,16 +1444,74 @@
         }
 
         // AI Interactive Coach Roleplay Integration
-        function startNewScenario() {
-            const select = document.getElementById('chat-scenario-select');
-            const scenarioKey = select.value;
+        function handleScenarioChange() {
+            const selectVal = document.getElementById('chat-scenario-select').value;
+            if (selectVal === 'custom') {
+                openCustomTopicModal();
+            } else {
+                state.previousScenarioValue = selectVal;
+                startNewScenario();
+            }
+        }
 
-            if (scenarioKey === 'custom') {
-                toggleCustomTopicModal(true);
+        function openCustomTopicModal() {
+            document.getElementById('custom-topic-input').value = "";
+            document.getElementById('custom-topic-modal').classList.remove('hidden');
+        }
+
+        function closeCustomTopicModal(success = false) {
+            document.getElementById('custom-topic-modal').classList.add('hidden');
+            if (!success) {
+                // User cancelled, revert select box back to previous active state
+                document.getElementById('chat-scenario-select').value = state.previousScenarioValue;
+            }
+        }
+
+        function startCustomTopic() {
+            const topic = document.getElementById('custom-topic-input').value.trim();
+            if (!topic) {
+                closeCustomTopicModal(false);
                 return;
             }
 
-            state.previousScenarioValue = scenarioKey;
+            // Successfully set up topic, proceed to assemble dynamic persona prompt
+            closeCustomTopicModal(true);
+
+            // Dynamically craft a scenario context
+            const cleanTopic = topic.replace(/'/g, "\\'");
+            SCENARIOS['custom_active'] = {
+                title: `Discussing: "${topic}"`,
+                aiPersona: `An expert guide chatting with you about: ${topic}.`,
+                initialPrompt: `Ciao! Parliamo un po' di questo argomento: ${topic}. Che ne pensi? ||| Hi! Let's talk a bit about this topic: ${topic}. What do you think?`,
+                systemPrompt: `You are a helpful language conversationalist discussing: "${cleanTopic}". Speak ONLY in beginner-to-intermediate level Italian (A1-B1) using very simple travel vocabulary, short sentences, and basic tenses (A1-B1). Keep your dialogue highly accessible. Gently correct grammatical mistakes in square brackets [in English] before responding. ALWAYS append the English translation at the very end of your response, separated strictly by '|||'.`
+            };
+
+            state.activeScenario = 'custom_active';
+            state.previousScenarioValue = 'custom';
+            state.chatHistory = [];
+
+            // Add new custom option dynamically inside selector if not already visible to indicate active state
+            let selector = document.getElementById('chat-scenario-select');
+            let customOption = selector.querySelector('option[value="custom_active"]');
+            if (!customOption) {
+                customOption = document.createElement('option');
+                customOption.value = "custom_active";
+                selector.appendChild(customOption);
+            }
+            customOption.textContent = `💬 Custom: ${topic.substring(0, 20)}${topic.length > 20 ? '...' : ''}`;
+            selector.value = "custom_active";
+
+            const scenario = SCENARIOS['custom_active'];
+            state.chatHistory.push({
+                sender: 'ai',
+                text: scenario.initialPrompt,
+                showTranslation: false
+            });
+            renderChatHistory();
+        }
+
+        function startNewScenario() {
+            const scenarioKey = document.getElementById('chat-scenario-select').value;
             state.activeScenario = scenarioKey;
             state.chatHistory = [];
 
@@ -1460,58 +1522,6 @@
                 showTranslation: false
             });
             renderChatHistory();
-        }
-
-        function toggleCustomTopicModal(visible) {
-            const modal = document.getElementById('custom-topic-modal');
-            if (visible) {
-                modal.classList.remove('hidden');
-                document.getElementById('custom-topic-input').value = '';
-                document.getElementById('custom-topic-input').focus();
-            } else {
-                modal.classList.add('hidden');
-                // Revert selection dropdown back to the last active scenario key
-                document.getElementById('chat-scenario-select').value = state.previousScenarioValue;
-            }
-        }
-
-        function startCustomTopic() {
-            const topicInput = document.getElementById('custom-topic-input');
-            const topic = topicInput.value.trim();
-            if (!topic) {
-                showToast("Please write a topic to discuss! 🇮🇹");
-                return;
-            }
-
-            // Programmatically define the customized scenario structure
-            SCENARIOS.custom = {
-                title: `Custom: ${topic}`,
-                aiPersona: `A friendly conversation companion excited to chat about "${topic}".`,
-                initialPrompt: `Ciao! Ho saputo che ti piacerebbe fare conversazione su: "${topic}". Davvero interessante! Ti va di iniziare dicendomi qualcosa a riguardo? ||| Hi! I heard you'd like to chat about: "${topic}". Really interesting! Do you want to start by telling me something about it?`,
-                systemPrompt: `You are an encouraging and friendly Italian conversational companion chatting with an English-speaking learner about their chosen topic: "${topic}". You MUST speak ONLY in beginner-to-intermediate level Italian (A1-B1 level), using simple sentence structures, basic high-frequency travel words, and very straightforward grammatical forms. Avoid advanced tenses, subjunctive moods, idiomatic jargon, or complex syntax. Keep your sentences travel-friendly, natural, and relatively brief (1-2 sentences). Gently point out any grammatical or vocabulary errors in English inside brackets [like this] before responding in Italian. At the very end of your response, you must ALWAYS provide an English translation of your dialogue response, separated by a triple pipe '|||' delimiter. Example: Italian response [grammar correction] ||| English translation`
-            };
-
-            state.previousScenarioValue = 'custom';
-            state.activeScenario = 'custom';
-            state.chatHistory = [];
-
-            // Dynamic Option update inside dropdown
-            const customOption = document.querySelector('#chat-scenario-select option[value="custom"]');
-            if (customOption) {
-                customOption.textContent = `💬 Custom: ${topic.substring(0, 16)}${topic.length > 16 ? '...' : ''}`;
-            }
-
-            // Close modal cleanly
-            const modal = document.getElementById('custom-topic-modal');
-            modal.classList.add('hidden');
-
-            state.chatHistory.push({
-                sender: 'ai',
-                text: SCENARIOS.custom.initialPrompt,
-                showTranslation: false
-            });
-            renderChatHistory();
-            showToast("Custom conversation initialized! 💬");
         }
 
         function renderChatHistory() {
@@ -1625,7 +1635,14 @@
         }
 
         function resetChat() {
-            startNewScenario();
+            if (state.activeScenario === 'custom_active') {
+                // If custom topic, recreate it with same parameters
+                const activeTopic = SCENARIOS['custom_active'].title.replace('Discussing: "', '').replace('"', '');
+                document.getElementById('custom-topic-input').value = activeTopic;
+                startCustomTopic();
+            } else {
+                startNewScenario();
+            }
         }
 
         // Global Tab management
