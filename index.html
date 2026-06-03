@@ -1,0 +1,1816 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Italian Flashcards with Gemini AI Coach</title>
+    <!-- Tailwind CSS for modern responsive utility design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for premium elegant typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for offline-friendly icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #faf9f6; /* Premium soft plaster white */
+        }
+        .italian-brand {
+            font-family: 'Cinzel', serif;
+        }
+        /* 3D Flashcard Flipping Transitions */
+        .flashcard-perspective {
+            perspective: 1200px;
+        }
+        .flashcard-inner {
+            transform-style: preserve-3d;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .flashcard-inner.is-flipped {
+            transform: rotateY(180deg);
+        }
+        /* Both faces must have precise absolute inset-0 sizing to prevent displacement */
+        .flashcard-face {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .flashcard-back {
+            transform: rotateY(180deg);
+        }
+        /* Soft custom shadows for elegant depth */
+        .card-shadow {
+            box-shadow: 0 15px 35px -5px rgba(115, 80, 40, 0.12), 0 5px 15px -3px rgba(0, 0, 0, 0.04);
+        }
+        /* Instant reset transition utility to prevent visual leakage on card swap */
+        .no-transition {
+            transition: none !important;
+        }
+        /* Subtle shimmer effect for loading states */
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .shimmer-loader {
+            background: linear-gradient(90deg, #f3f3f3 25%, #e6e6e6 50%, #f3f3f3 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-red-200">
+
+    <!-- Slim Modern Header -->
+    <header class="bg-stone-900 text-stone-100 shadow-sm relative shrink-0">
+        <div class="absolute inset-x-0 bottom-0 h-1 flex">
+            <div class="w-1/3 bg-emerald-600"></div>
+            <div class="w-1/3 bg-stone-100"></div>
+            <div class="w-1/3 bg-red-600"></div>
+        </div>
+        <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <span class="text-3xl">🇮🇹</span>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wide italian-brand text-stone-100">Andiamo!</h1>
+                    <p class="text-[10px] text-stone-400 font-medium -mt-1">Italian Companion Flashcards & AI Coach</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-1.5">
+                <!-- Custom Card Creator Button -->
+                <button onclick="toggleCreateModal(true)" class="px-2.5 py-1.5 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-emerald-100 text-xs font-semibold transition border border-emerald-700 flex items-center gap-1" title="Create custom card with Gemini AI">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> <span class="hidden sm:inline">Crea</span>
+                </button>
+                <!-- Config Trigger Button -->
+                <button onclick="toggleConfigModal(true)" class="w-9 h-9 rounded-full bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white flex items-center justify-center transition border border-stone-700" title="Study Configuration">
+                    <i class="fa-solid fa-sliders text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Hub Bar (Tab Selector) -->
+    <nav class="bg-stone-850 text-stone-300 border-b border-stone-800 px-4 shrink-0">
+        <div class="max-w-3xl mx-auto flex gap-1 py-1 text-xs">
+            <button onclick="switchTab('study')" id="tab-btn-study" class="flex-1 py-2 text-center rounded-lg font-bold transition-all text-white bg-stone-700">
+                <i class="fa-solid fa-graduation-cap mr-1"></i> Flashcards
+            </button>
+            <button onclick="switchTab('dictionary')" id="tab-btn-dictionary" class="flex-1 py-2 text-center rounded-lg font-bold transition-all hover:bg-stone-800 hover:text-white">
+                <i class="fa-solid fa-book-open mr-1"></i> Directory
+            </button>
+            <button onclick="switchTab('chat')" id="tab-btn-chat" class="flex-1 py-2 text-center rounded-lg font-bold transition-all hover:bg-stone-800 hover:text-white flex items-center justify-center gap-1">
+                <i class="fa-solid fa-comments"></i> AI Coach
+                <span class="bg-red-600 text-white text-[8px] font-extrabold px-1 rounded-full uppercase tracking-tight animate-pulse">Live</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Category Flow Grid (Low-profile wrapping design) -->
+    <section id="category-selector-section" class="bg-stone-105/60 border-b border-stone-200/80 shrink-0">
+        <div class="max-w-3xl mx-auto px-4 py-3">
+            <p class="text-[10px] text-stone-400 font-bold uppercase tracking-wider mb-2">Select Category</p>
+            <div id="category-chips-container" class="flex flex-wrap gap-1.5">
+                <!-- Low-profile wraps generated here dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Dynamic Interface Container -->
+    <main class="flex-grow max-w-3xl w-full mx-auto px-4 py-4 flex flex-col justify-start">
+
+        <!-- STUDY SANDBOX DECK VIEW -->
+        <div id="study-container" class="w-full flex-grow flex flex-col justify-start space-y-4">
+            
+            <!-- Quick Meta Indicators -->
+            <div class="flex items-center justify-between text-xs text-stone-500 font-medium shrink-0">
+                <div class="flex items-center gap-2 bg-stone-200/50 px-2.5 py-1 rounded-full">
+                    <span id="deck-identity" class="font-bold text-stone-700">All Words</span>
+                    <span>•</span>
+                    <span id="card-index-tracker">Card 0 of 0</span>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <button onclick="shuffleDeck()" class="px-2.5 py-1 bg-stone-200/70 hover:bg-stone-200 text-stone-700 font-semibold rounded-full transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-shuffle text-[10px]"></i> Shuffle
+                    </button>
+                    <button onclick="toggleKeyboardModal(true)" class="p-1 text-stone-400 hover:text-stone-600 transition" title="Shortcuts">
+                        <i class="fa-solid fa-keyboard"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Immersive Flashcard View with strict aspect limits so flip doesn't expand height -->
+            <div class="relative w-full h-48 sm:h-56 md:h-64 flashcard-perspective select-none shrink-0">
+                
+                <!-- Complete State Screen -->
+                <div id="deck-complete-screen" class="absolute inset-0 bg-stone-900 text-white rounded-2xl p-6 flex flex-col items-center justify-center text-center gap-4 hidden z-10 card-shadow border-b-4 border-emerald-600">
+                    <span class="text-3xl">🎉</span>
+                    <h2 class="text-lg font-bold tracking-wide">Tutti pronti! (All Done!)</h2>
+                    <p class="text-stone-300 max-w-xs text-xs leading-relaxed">
+                        You've marked all cards in this category as mastered!
+                    </p>
+                    <div class="flex gap-2 mt-2">
+                        <button onclick="restoreAllMasteredInSession()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl font-semibold transition text-xs flex items-center gap-1.5">
+                            <i class="fa-solid fa-redo"></i> Reset Cards
+                        </button>
+                        <button onclick="changeCategory('All')" class="bg-stone-800 hover:bg-stone-700 text-stone-300 px-3 py-1.5 rounded-xl font-semibold transition text-xs flex items-center gap-1.5 border border-stone-700">
+                            Try All Words
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card Flip Shell (Absolute boundary locked to ensure same space utilization) -->
+                <div id="flashcard-inner" class="flashcard-inner w-full h-full cursor-pointer relative" onclick="flipCard()">
+                    
+                    <!-- FRONT FACE -->
+                    <div class="flashcard-face bg-white rounded-2xl p-4 sm:p-6 flex flex-col justify-between card-shadow border border-stone-200/80 absolute inset-0 w-full h-full overflow-hidden">
+                        <!-- Tricolore Header Accent -->
+                        <div class="absolute top-0 left-0 w-full h-1.5 flex">
+                            <div class="w-1/3 bg-emerald-600"></div>
+                            <div class="w-1/3 bg-stone-100"></div>
+                            <div class="w-1/3 bg-red-600"></div>
+                        </div>
+
+                        <!-- Card Header Meta -->
+                        <div class="flex items-center justify-between">
+                            <span id="card-tag-front" class="text-[9px] uppercase tracking-wider font-extrabold bg-stone-100 text-stone-600 px-2 py-0.5 rounded-md">
+                                GREETINGS
+                            </span>
+                            <div class="flex items-center gap-1.5">
+                                <button id="scroll-btn-front" onclick="scrollToExplain(event)" class="hidden px-2.5 py-1 bg-indigo-100 hover:bg-indigo-250 text-indigo-800 text-[9px] font-bold rounded-lg transition flex items-center gap-1 animate-bounce">
+                                    <span>Read Explanation</span> <i class="fa-solid fa-arrow-down text-[8px]"></i>
+                                </button>
+                                <button onclick="triggerExplainAI(event)" class="w-8 h-8 rounded-full bg-stone-50 hover:bg-indigo-50 text-stone-600 hover:text-indigo-700 border border-stone-200 flex items-center justify-center transition" title="Ask Gemini AI Coach to explain this phrase">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                                </button>
+                                <button onclick="speakItalianPhrase(event)" id="speak-btn-front" class="w-8 h-8 rounded-full bg-stone-50 hover:bg-emerald-50 text-stone-600 hover:text-emerald-700 border border-stone-200 flex items-center justify-center transition" title="Listen Pronunciation">
+                                    <i class="fa-solid fa-volume-high text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Card Content Center -->
+                        <div class="text-center py-2 flex flex-col justify-center items-center">
+                            <p id="text-title-front" class="text-[9px] text-stone-400 font-bold uppercase tracking-widest mb-1">ITALIAN</p>
+                            <h2 id="text-display-front" class="text-xl sm:text-2xl md:text-3xl font-bold text-stone-800 leading-tight">
+                                Buongiorno
+                            </h2>
+                            <p id="phonetic-display" class="text-stone-500 text-[11px] italic mt-2 tracking-wide font-normal"></p>
+                        </div>
+
+                        <!-- Card Footer -->
+                        <div class="flex items-center justify-between text-[9px] text-stone-400 border-t border-stone-100 pt-2 shrink-0">
+                            <span>Tap card to flip</span>
+                            <span></span>
+                        </div>
+                    </div>
+
+                    <!-- BACK FACE -->
+                    <div class="flashcard-face flashcard-back bg-stone-50 rounded-2xl p-4 sm:p-6 flex flex-col justify-between card-shadow border border-stone-350 absolute inset-0 w-full h-full overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1.5 bg-stone-400"></div>
+
+                        <!-- Card Header Meta -->
+                        <div class="flex items-center justify-between">
+                            <span id="card-tag-back" class="text-[9px] uppercase tracking-wider font-extrabold bg-stone-200 text-stone-600 px-2 py-0.5 rounded-md">
+                                GREETINGS
+                            </span>
+                            <div class="flex items-center gap-1.5">
+                                <button id="scroll-btn-back" onclick="scrollToExplain(event)" class="hidden px-2.5 py-1 bg-indigo-100 hover:bg-indigo-250 text-indigo-800 text-[9px] font-bold rounded-lg transition flex items-center gap-1 animate-bounce">
+                                    <span>Read Explanation</span> <i class="fa-solid fa-arrow-down text-[8px]"></i>
+                                </button>
+                                <button onclick="triggerExplainAI(event)" class="w-8 h-8 rounded-full bg-stone-100 hover:bg-indigo-50 text-stone-600 hover:text-indigo-700 border border-stone-250 flex items-center justify-center transition" title="Explain with AI">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                                </button>
+                                <button onclick="speakItalianPhrase(event)" id="speak-btn-back" class="w-8 h-8 rounded-full bg-stone-200 hover:bg-emerald-50 text-stone-600 hover:text-emerald-700 border border-stone-300 flex items-center justify-center transition" title="Listen Pronunciation">
+                                    <i class="fa-solid fa-volume-high text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Card Content Center -->
+                        <div class="text-center py-2 flex flex-col justify-center items-center">
+                            <p id="text-title-back" class="text-[9px] text-stone-400 font-bold uppercase tracking-widest mb-1">ENGLISH</p>
+                            <h2 id="text-display-back" class="text-xl sm:text-2xl md:text-3xl font-semibold text-stone-800 leading-tight">
+                                Good Morning
+                            </h2>
+                        </div>
+
+                        <!-- Card Footer -->
+                        <div class="flex items-center justify-between text-[9px] text-stone-400 border-t border-stone-200 pt-2 shrink-0">
+                            <span>Tap card to flip back</span>
+                            <span></span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Integrated Progress and Action Dashboard -->
+            <div class="space-y-3 shrink-0">
+                
+                <!-- Action Buttons: Next / Prev & Practice Decisions -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    
+                    <!-- Left: Navigation Arrows -->
+                    <div class="flex gap-2">
+                        <button onclick="prevCard()" class="flex-1 py-2.5 bg-white hover:bg-stone-50 text-stone-700 border border-stone-200 font-bold rounded-xl transition flex items-center justify-center gap-1.5 text-xs shadow-xs" title="Previous Word">
+                            <i class="fa-solid fa-arrow-left"></i> Indietro
+                        </button>
+                        <button onclick="nextCard()" class="flex-1 py-2.5 bg-white hover:bg-stone-50 text-stone-700 border border-stone-200 font-bold rounded-xl transition flex items-center justify-center gap-1.5 text-xs shadow-xs" title="Next Word">
+                            Avanti <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Right: Knowledge Verification Decisions -->
+                    <div class="flex gap-2">
+                        <button onclick="markAsNeedPractice()" class="flex-1 py-2.5 bg-stone-100 hover:bg-amber-50 text-stone-700 hover:text-amber-800 font-bold rounded-xl transition flex items-center justify-center gap-1.5 text-xs border border-stone-200">
+                            <i class="fa-regular fa-circle-question text-amber-600 text-sm"></i> Practice
+                        </button>
+                        <button onclick="markAsKnown()" class="flex-1 py-2.5 bg-emerald-700 hover:bg-emerald-650 text-white font-bold rounded-xl shadow-sm transition flex items-center justify-center gap-1.5 text-xs border border-emerald-800">
+                            <i class="fa-solid fa-check-double text-emerald-200"></i> Lo So!
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- Integrated Progress bar at bottom of workspace -->
+                <div class="bg-stone-100 border border-stone-200 p-2 rounded-xl flex items-center justify-between gap-4">
+                    <div class="flex-grow">
+                        <div class="flex items-center justify-between text-[9px] text-stone-550 font-bold mb-1">
+                            <span>PROGRESS</span>
+                            <span id="session-percentage-badge">0% Mastered</span>
+                        </div>
+                        <div class="w-full bg-stone-200 rounded-full h-1.5 overflow-hidden">
+                            <div id="progress-bar-fill" class="bg-emerald-600 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-2 shrink-0 border-l border-stone-200 pl-3">
+                        <div class="text-center">
+                            <span id="stats-known-count" class="block text-xs font-bold text-emerald-700">0</span>
+                            <span class="block text-[8px] uppercase text-stone-400 font-bold">KNOWN</span>
+                        </div>
+                        <div class="text-center">
+                            <span id="stats-remaining-count" class="block text-xs font-bold text-stone-700">0</span>
+                            <span class="block text-[8px] uppercase text-stone-400 font-bold">REMAIN</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- AI Explanation Expansion Drawer (Gemini Output) -->
+            <div id="ai-explain-drawer" class="bg-indigo-50/70 border border-indigo-150 rounded-2xl p-4 hidden flex-col gap-3 transition-all">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-extrabold text-indigo-900 tracking-wide uppercase flex items-center gap-1.5">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Gemini AI Explanation
+                    </span>
+                    <button onclick="closeExplainDrawer()" class="text-indigo-400 hover:text-indigo-600 transition">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                    </button>
+                </div>
+                
+                <!-- Loading State inside Drawer -->
+                <div id="ai-explain-loading" class="flex flex-col gap-2 py-2 hidden">
+                    <div class="h-3.5 w-1/3 rounded shimmer-loader"></div>
+                    <div class="h-3 w-full rounded shimmer-loader"></div>
+                    <div class="h-3 w-5/6 rounded shimmer-loader"></div>
+                </div>
+
+                <!-- Actual Output Container -->
+                <div id="ai-explain-content" class="text-xs text-indigo-950 space-y-2.5 leading-relaxed">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- FULL DIRECTORY DICTIONARY EXPLORER VIEW (COLLAPSED BY DEFAULT) -->
+        <div id="dictionary-container" class="w-full bg-white rounded-2xl p-4 border border-stone-200 shadow-xs flex flex-col gap-3 hidden">
+            
+            <!-- Dictionary Search Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-2">
+                <div>
+                    <h2 class="text-sm font-bold text-stone-850">Dictionary Directory</h2>
+                    <p class="text-[9px] text-stone-550 font-medium">Search and hear pronunciation of any trip phrases.</p>
+                </div>
+                
+                <div class="relative w-full sm:max-w-[200px]">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-2.5 pointer-events-none text-stone-400">
+                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                    </span>
+                    <input type="text" id="dict-search-input" oninput="handleSearch(this.value)" placeholder="Search Italian or English..." class="w-full pl-8 pr-3 py-1 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:bg-white transition-all">
+                </div>
+            </div>
+
+            <!-- Dictionary Lists -->
+            <div id="dictionary-list" class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+
+        <!-- AI ROLEPLAY TAB VIEW (COLLAPSED BY DEFAULT) -->
+        <div id="chat-container" class="w-full bg-white rounded-2xl border border-stone-200 shadow-xs flex flex-col hidden overflow-hidden">
+            
+            <!-- Chat Scenarios Configuration Selection Header -->
+            <div class="bg-stone-50 border-b border-stone-200 p-3 shrink-0 flex flex-col gap-2">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xs font-bold text-stone-800">Parliamo Italiano! (Interactive Roleplay Coach)</h3>
+                        <p class="text-[9px] text-stone-550 font-medium">Choose a travel scenario or make your own custom topic.</p>
+                    </div>
+                    <button onclick="resetChat()" class="text-stone-400 hover:text-red-600 text-[10px] font-bold flex items-center gap-1 transition">
+                        <i class="fa-solid fa-arrow-rotate-left"></i> Reset
+                    </button>
+                </div>
+                
+                <select id="chat-scenario-select" onchange="startNewScenario()" class="bg-white border border-stone-200 text-xs rounded-xl p-1.5 focus:outline-none text-stone-700 w-full font-medium">
+                    <option value="ristorante">🍷 Ordering at a Florentine Osteria</option>
+                    <option value="hotel">🔑 Checking into an Albergo in Rome</option>
+                    <option value="treno">🎟️ Buying Train Tickets at Stazione Santa Maria Novella</option>
+                    <option value="indicazioni">🗺️ Asking for Directions in Venice</option>
+                    <option value="custom" class="text-indigo-600 font-bold bg-indigo-50">💬 Custom Conversation Topic...</option>
+                </select>
+            </div>
+
+            <!-- Dialogue Scroll Zone -->
+            <div id="chat-messages-zone" class="p-3 space-y-3 max-h-[280px] overflow-y-auto bg-stone-100/40 min-h-[180px]">
+                <!-- Message structures popped in here -->
+            </div>
+
+            <!-- Chat input frame -->
+            <div class="p-2 border-t border-stone-200 bg-white shrink-0 flex gap-1.5 items-center">
+                <input type="text" id="chat-input-field" onkeydown="handleChatSubmitKey(event)" placeholder="Type your Italian answer here..." class="flex-grow border border-stone-200 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-stone-50">
+                <button onclick="submitUserChatMessage()" class="bg-emerald-700 text-white w-8 h-8 rounded-xl flex items-center justify-center hover:bg-emerald-650 transition shrink-0 shadow-sm">
+                    <i class="fa-solid fa-arrow-up text-xs"></i>
+                </button>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Custom Topic Selection Modal -->
+    <div id="custom-topic-modal" class="fixed inset-0 bg-stone-950/40 backdrop-blur-xs flex items-end sm:items-center justify-center z-50 p-0 sm:p-4 hidden" onclick="toggleCustomTopicModal(false)">
+        <div class="bg-white rounded-t-2xl sm:rounded-2xl max-w-sm w-full p-6 shadow-xl border border-stone-150 transform translate-y-0 transition-transform duration-300" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-4 pb-2 border-b border-stone-100">
+                <h3 class="font-bold text-stone-850 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-comments text-emerald-600"></i> Start Custom Conversation
+                </h3>
+                <button onclick="toggleCustomTopicModal(false)" class="text-stone-400 hover:text-stone-600 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-1">What do you want to talk about?</label>
+                    <input type="text" id="custom-topic-input" placeholder="e.g. Italian football, Gelato recipes, fashion trends..." class="w-full text-xs p-2.5 border border-stone-200 rounded-xl bg-stone-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-emerald-500">
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="toggleCustomTopicModal(false)" class="flex-grow py-2 bg-stone-105 hover:bg-stone-200 text-stone-700 text-xs font-bold rounded-xl transition">
+                        Cancel
+                    </button>
+                    <button onclick="startCustomTopic()" class="flex-grow py-2 bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl transition">
+                        Start Conversation!
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Custom Card Translation Modal (New Feature) -->
+    <div id="create-card-modal" class="fixed inset-0 bg-stone-950/40 backdrop-blur-xs flex items-end sm:items-center justify-center z-50 p-0 sm:p-4 hidden" onclick="toggleCreateModal(false)">
+        <div class="bg-white rounded-t-2xl sm:rounded-2xl max-w-sm w-full p-6 shadow-xl border border-stone-150 transform translate-y-0 transition-transform duration-300" onclick="event.stopPropagation()">
+            
+            <div class="flex items-center justify-between mb-4 pb-2 border-b border-stone-100">
+                <h3 class="font-bold text-stone-850 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles text-emerald-600"></i> AI Custom Card Creator
+                </h3>
+                <button onclick="toggleCreateModal(false)" class="text-stone-400 hover:text-stone-600 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-1">What do you want to learn to say?</label>
+                    <input type="text" id="custom-english-input" placeholder="e.g. Is there a gluten-free bakery near here?" class="w-full text-xs p-2.5 border border-stone-200 rounded-xl bg-stone-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-emerald-500">
+                </div>
+
+                <div id="creator-ai-loading" class="hidden flex-col gap-1 text-center py-2 text-xs text-stone-500">
+                    <i class="fa-solid fa-spinner animate-spin text-lg text-emerald-600 mb-1"></i>
+                    <span>Consulting Gemini Language Coach...</span>
+                </div>
+
+                <div id="creator-preview-pane" class="hidden bg-stone-50 border border-stone-200 p-3 rounded-xl space-y-2">
+                    <p class="text-[9px] font-bold text-stone-400 uppercase tracking-widest">Translation Preview</p>
+                    <div>
+                        <span class="block text-[10px] font-bold text-emerald-700">ITALIAN:</span>
+                        <p id="creator-preview-italian" class="text-xs font-semibold text-stone-800"></p>
+                    </div>
+                    <div>
+                        <span class="block text-[10px] font-bold text-stone-500">PHONETIC:</span>
+                        <p id="creator-preview-phonetic" class="text-xs text-stone-600 italic"></p>
+                    </div>
+                    <div>
+                        <span class="block text-[10px] font-bold text-indigo-700">CATEGORY:</span>
+                        <p id="creator-preview-category" class="text-xs text-stone-600 font-semibold"></p>
+                    </div>
+                </div>
+
+                <div class="flex gap-2">
+                    <button id="creator-btn-generate" onclick="generateTranslationAI()" class="flex-grow py-2 bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl transition">
+                        Translate with Gemini AI
+                    </button>
+                    <button id="creator-btn-save" onclick="saveCustomAICard()" class="hidden flex-grow py-2 bg-indigo-700 hover:bg-indigo-600 text-white text-xs font-bold rounded-xl transition">
+                        Save to Flashcards
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Study Configuration Modal Overlay (Hidden initially) -->
+    <div id="config-modal" class="fixed inset-0 bg-stone-950/40 backdrop-blur-xs flex items-end sm:items-center justify-center z-50 p-0 sm:p-4 hidden" onclick="toggleConfigModal(false)">
+        <div class="bg-white rounded-t-2xl sm:rounded-2xl max-w-sm w-full p-5 shadow-xl border border-stone-150 transform translate-y-0 transition-transform duration-300" onclick="event.stopPropagation()">
+            
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between mb-4 pb-2 border-b border-stone-100">
+                <h3 class="font-bold text-stone-850 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-emerald-600"></i> Settings
+                </h3>
+                <button onclick="toggleConfigModal(false)" class="text-stone-400 hover:text-stone-600 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <!-- Switches -->
+            <div class="space-y-3.5 text-xs text-stone-700">
+                <label class="flex items-center justify-between cursor-pointer group">
+                    <span class="font-semibold group-hover:text-stone-900 transition-colors">Show English first</span>
+                    <div class="relative">
+                        <input type="checkbox" id="toggle-english-first" onchange="toggleEnglishFirst(this.checked)" class="sr-only peer">
+                        <div class="w-10 h-5.5 bg-stone-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:bg-emerald-650"></div>
+                    </div>
+                </label>
+
+                <label class="flex items-center justify-between cursor-pointer group">
+                    <span class="font-semibold group-hover:text-stone-900 transition-colors">Auto-speak Italian</span>
+                    <div class="relative">
+                        <input type="checkbox" id="toggle-auto-speak" checked onchange="toggleAutoSpeak(this.checked)" class="sr-only peer">
+                        <div class="w-10 h-5.5 bg-stone-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:bg-emerald-650"></div>
+                    </div>
+                </label>
+
+                <!-- Speed range -->
+                <div class="pt-2 border-t border-stone-150 space-y-2">
+                    <div class="flex items-center justify-between text-stone-500">
+                        <span>Speed (Tempo)</span>
+                        <span id="speech-speed-val" class="font-bold text-stone-700">1.0x</span>
+                    </div>
+                    <input type="range" id="speech-speed" min="0.5" max="1.5" step="0.1" value="1.0" oninput="updateSpeechSpeed(this.value)" class="w-full accent-emerald-600 h-1 bg-stone-200 rounded-lg appearance-none cursor-pointer">
+                </div>
+
+                <!-- Custom Speech Select -->
+                <div class="space-y-1">
+                    <label for="voice-select" class="text-stone-500 block">System Voice Dialect</label>
+                    <select id="voice-select" onchange="changeVoice()" class="w-full bg-stone-50 border border-stone-200 rounded-lg p-2 text-stone-700 focus:outline-none focus:ring-1 focus:ring-emerald-600 text-xs">
+                        <option value="">System Default</option>
+                    </select>
+                </div>
+
+                <div class="pt-3 border-t border-stone-150 flex flex-col gap-2">
+                    <button onclick="restoreAllMasteredInSession(); toggleConfigModal(false);" class="w-full py-2 bg-stone-105 hover:bg-stone-200 text-stone-700 font-semibold rounded-xl transition text-center flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-redo"></i> Restore Mastered Words
+                    </button>
+                    <button onclick="triggerResetConfirmationModal(); toggleConfigModal(false);" class="w-full py-2 bg-red-50 hover:bg-red-100 text-red-700 font-semibold rounded-xl transition text-center flex items-center justify-center gap-1.5 animate-pulse">
+                        <i class="fa-solid fa-arrows-rotate"></i> Hard Reset All Progress
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Close trigger -->
+            <button onclick="toggleConfigModal(false)" class="mt-4 w-full py-2 bg-stone-900 hover:bg-stone-850 text-white rounded-xl font-medium transition text-xs">
+                Apply Settings
+            </button>
+        </div>
+    </div>
+
+    <!-- Custom Modal Confirmation Overlay (Replaces confirm()) -->
+    <div id="reset-confirm-modal" class="fixed inset-0 bg-stone-950/50 backdrop-blur-xs flex items-center justify-center z-55 p-4 hidden" onclick="toggleConfirmModal(false)">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl border border-stone-100 text-center" onclick="event.stopPropagation()">
+            <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-3">
+                <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+            </div>
+            <h3 class="font-bold text-stone-850 text-sm mb-1">Sei sicuro? (Are you sure?)</h3>
+            <p class="text-stone-500 text-xs mb-4">This will delete all custom vocabulary cards and erase your master learning progress history forever. This cannot be undone.</p>
+            <div class="flex gap-2">
+                <button onclick="toggleConfirmModal(false)" class="flex-1 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl font-semibold text-xs transition">
+                    Annulla (Cancel)
+                </button>
+                <button onclick="executeAllProgressReset()" class="flex-1 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl font-semibold text-xs transition">
+                    Sì, Reset!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Guide Modal -->
+    <div id="keyboard-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center z-50 p-4 hidden" onclick="toggleKeyboardModal(false)">
+        <div class="bg-white rounded-2xl max-w-xs w-full p-5 shadow-xl border border-stone-100" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-4 pb-2 border-b border-stone-100">
+                <h3 class="font-bold text-stone-800 flex items-center gap-2 text-xs">
+                    <i class="fa-solid fa-keyboard text-emerald-700"></i> Keyboard Controls
+                </h3>
+                <button onclick="toggleKeyboardModal(false)" class="text-stone-400 hover:text-stone-600 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-2.5 text-xs text-stone-700">
+                <div class="flex justify-between items-center">
+                    <span>Flip card face</span>
+                    <kbd class="px-1.5 py-0.5 bg-stone-100 border border-stone-300 rounded font-mono text-[10px]">Space</kbd>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span>Listen pronunciation</span>
+                    <kbd class="px-1.5 py-0.5 bg-stone-100 border border-stone-300 rounded font-mono text-[10px]">Up Arrow</kbd>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span>Mark Known ("Lo So!")</span>
+                    <kbd class="px-1.5 py-0.5 bg-stone-100 border border-stone-300 rounded font-mono text-[10px]">Down Arrow</kbd>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span>Next Phrase</span>
+                    <kbd class="px-1.5 py-0.5 bg-stone-100 border border-stone-300 rounded font-mono text-[10px]">Right Arrow</kbd>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span>Previous Phrase</span>
+                    <kbd class="px-1.5 py-0.5 bg-stone-100 border border-stone-300 rounded font-mono text-[10px]">Left Arrow</kbd>
+                </div>
+            </div>
+            
+            <button onclick="toggleKeyboardModal(false)" class="mt-4 w-full py-2 bg-stone-900 hover:bg-stone-800 text-white rounded-xl font-medium transition text-xs">
+                Capito! (Got it)
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast container -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-55 pointer-events-none"></div>
+
+    <script>
+        // Consolidated static Italian vocabulary deck
+        const MASTER_DECK_DATA = [
+            // Greetings
+            { id: "g1", category: "Greetings", italian: "Va bene", english: "Ok" },
+            { id: "g2", category: "Greetings", italian: "Mi chiamo…", english: "My name is…" },
+            { id: "g3", category: "Greetings", italian: "Come ti chiami?", english: "What is your name?" },
+            { id: "g4", category: "Greetings", italian: "Piacere", english: "Nice to meet you" },
+            { id: "g5", category: "Greetings", italian: "Prego", english: "You're welcome" },
+            { id: "g6", category: "Greetings", italian: "Scusa", english: "Excuse me / Sorry" },
+            { id: "g7", category: "Greetings", italian: "Mi dispiace", english: "I'm sorry" },
+            { id: "g8", category: "Greetings", italian: "Non capisco", english: "I don't understand" },
+            { id: "g9", category: "Greetings", italian: "Non lo so", english: "I don't know" },
+            { id: "g10", category: "Greetings", italian: "Parla inglese?", english: "Do you speak English?" },
+            { id: "g11", category: "Greetings", italian: "Parlo spagnolo", english: "I speak Spanish" },
+            { id: "g12", category: "Greetings", italian: "Può ripetere?", english: "Can you repeat that?" },
+            { id: "g13", category: "Greetings", italian: "Più lentamente", english: "More slowly" },
+            { id: "p1", category: "Greetings", italian: "Sono degli Stati Uniti", english: "I am from the United States" },
+            { id: "p2", category: "Greetings", italian: "Di dove sei?", english: "Where are you from?" },
+            { id: "p3", category: "Greetings", italian: "Sono di Porto Rico", english: "I am from Puerto Rico" },
+            { id: "p4", category: "Greetings", italian: "Sono americano/a", english: "I'm American" },
+            { id: "p5", category: "Greetings", italian: "Vivo ad Atlanta", english: "I live in Atlanta" },
+            { id: "p6", category: "Greetings", italian: "Come stai?", english: "How are you?" },
+            { id: "p7", category: "Greetings", italian: "Sto bene, e tu?", english: "I am good, and you?" },
+            { id: "p8", category: "Greetings", italian: "Sto molto bene", english: "I am very good" },
+            { id: "p9", category: "Greetings", italian: "Sto molto male", english: "I am very bad" },
+            { id: "p10", category: "Greetings", italian: "Non c'è male", english: "Not bad" },
+            { id: "p11", category: "Greetings", italian: "Siamo pronti?", english: "Are we ready?" },
+            { id: "p12", category: "Greetings", italian: "Ti amo", english: "I love you" },
+            { id: "p13", category: "Greetings", italian: "Questo è il mio compagno", english: "This is my partner (masc.)" },
+            { id: "p14", category: "Greetings", italian: "Questa è la mia compagna", english: "This is my partner (fem.)" },
+            { id: "p15", category: "Greetings", italian: "Lei è la mia amica", english: "She is my friend" },
+            { id: "p16", category: "Greetings", italian: "Sono i miei amici", english: "They are my friends" },
+            { id: "p17", category: "Greetings", italian: "Dov'è il mio ragazzo?", english: "Where is my boyfriend?" },
+
+            // Getting Around
+            { id: "pl1", category: "Getting Around", italian: "Firenze", english: "Florence" },
+            { id: "pl2", category: "Getting Around", italian: "Venezia", english: "Venice" },
+            { id: "pl3", category: "Getting Around", italian: "Milano", english: "Milan" },
+            { id: "pl7", category: "Getting Around", italian: "Cinque Terre", english: "Cinque Terre" },
+            { id: "pl10", category: "Getting Around", italian: "La Toscana", english: "Tuscany" },
+            { id: "pl11", category: "Getting Around", italian: "Genova", english: "Genoa" },
+            { id: "pl13", category: "Getting Around", italian: "Via del Canto dei Nelli", english: "Our street in Florence" },
+            { id: "pl14", category: "Getting Around", italian: "Ristorante Pizzeria Canto dei Nelli", english: "Our neighbor restaurant in Florence" },
+            { id: "pl15", category: "Getting Around", italian: "Firenze Santa Maria Novella", english: "Our train stop in Florence" },
+            { id: "ga1", category: "Getting Around", italian: "Stop", english: "Stop" },
+            { id: "ga2", category: "Getting Around", italian: "Dov'è…?", english: "Where is…?" },
+            { id: "ga3", category: "Getting Around", italian: "A destra", english: "To the right" },
+            { id: "ga4", category: "Getting Around", italian: "A sinistra", english: "To the left" },
+            { id: "ga5", category: "Getting Around", italian: "Dritto", english: "Straight ahead" },
+            { id: "ga6", category: "Getting Around", italian: "Vicino", english: "Near / Close" },
+            { id: "ga7", category: "Getting Around", italian: "Lontano", english: "Far" },
+            { id: "ga8", category: "Getting Around", italian: "La fermata dell'autobus", english: "The bus stop" },
+            { id: "ga9", category: "Getting Around", italian: "Il taxi", english: "The taxi" },
+            { id: "ga10", category: "Getting Around", italian: "La stazione", english: "The train station" },
+            { id: "ga11", category: "Getting Around", italian: "L'aeroporto", english: "The airport" },
+            { id: "ga12", category: "Getting Around", italian: "Il biglietto", english: "The ticket" },
+            { id: "ga13", category: "Getting Around", italian: "L'uscita", english: "The exit" },
+            { id: "ga14", category: "Getting Around", italian: "L'entrata", english: "The entrance" },
+            { id: "ga15", category: "Getting Around", italian: "Il centro", english: "The city centre" },
+            { id: "ga16", category: "Getting Around", italian: "La mappa", english: "The map" },
+            { id: "ga17", category: "Getting Around", italian: "Mi sono perso", english: "I'm lost" },
+            { id: "ga18", category: "Getting Around", italian: "Quanto dista?", english: "How far is it?" },
+            { id: "ga19", category: "Getting Around", italian: "Due biglietti per Firenze", english: "Two train tickets to Florence" },
+            { id: "ga20", category: "Getting Around", italian: "Posso avere un posto lato mare?", english: "Can I have a seat on the coastal side?" },
+            { id: "ss1", category: "Getting Around", italian: "Il museo", english: "The museum" },
+            { id: "ss2", category: "Getting Around", italian: "La chiesa", english: "The church" },
+            { id: "ss3", category: "Getting Around", italian: "Il castello", english: "The castle" },
+            { id: "ss4", category: "Getting Around", italian: "La fontana", english: "The fountain" },
+            { id: "ss5", category: "Getting Around", italian: "La piazza", english: "The square / plaza" },
+            { id: "ss6", category: "Getting Around", italian: "Il monument", english: "The monument" },
+            { id: "ss7", category: "Getting Around", italian: "La galleria", english: "The gallery" },
+            { id: "ss8", category: "Getting Around", italian: "L'orario", english: "The opening hours" },
+            { id: "ss9", category: "Getting Around", italian: "Il biglietto d'ingresso", english: "The entrance ticket" },
+            { id: "ss10", category: "Getting Around", italian: "Una foto", english: "A photo" },
+            { id: "ss11", category: "Getting Around", italian: "Posso fare una foto?", english: "Can I take a photo?" },
+            { id: "ss12", category: "Getting Around", italian: "Bellissimo!", english: "Very beautiful!" },
+            { id: "ac1", category: "Getting Around", italian: "Ho una prenotazione", english: "I have a reservation" },
+            { id: "ac2", category: "Getting Around", italian: "La camera", english: "The room" },
+            { id: "ac3", category: "Getting Around", italian: "Il check-in", english: "Check-in" },
+            { id: "ac4", category: "Getting Around", italian: "Il check-out", english: "Check-out" },
+            { id: "ac5", category: "Getting Around", italian: "La chiave", english: "The key" },
+            { id: "ac6", category: "Getting Around", italian: "Il WiFi", english: "WiFi" },
+            { id: "ac7", category: "Getting Around", italian: "La colazione", english: "Breakfast" },
+            { id: "ac8", category: "Getting Around", italian: "Il primo piano", english: "The first floor" },
+            { id: "ac9", category: "Getting Around", italian: "Il secondo piano", english: "The second floor" },
+            { id: "ac10", category: "Getting Around", italian: "Il terzo piano", english: "The third floor" },
+            { id: "ac11", category: "Getting Around", italian: "Le scale", english: "The stairs" },
+            { id: "ac12", category: "Getting Around", italian: "L'ascensore", english: "The elevator" },
+            { id: "ac13", category: "Getting Around", italian: "Dov'è il bagno?", english: "Where is the bathroom?" },
+            { id: "ac14", category: "Getting Around", italian: "Ecco l'albergo", english: "There is the hotel" },
+            { id: "ac15", category: "Getting Around", italian: "Ho bisogno di aiuto con le valigie", english: "I need help with the suitcases" },
+            { id: "ac16", category: "Getting Around", italian: "Aperto", english: "Open" }, 
+            { id: "ac17", category: "Getting Around", italian: "Chiuso", english: "Closed" },
+
+            // Eat & Shop
+            { id: "d1", category: "Eat & Shop", italian: "Un tavolo per cinque", english: "A table for five" },
+            { id: "d2", category: "Eat & Shop", italian: "Il menu", english: "The menu" },
+            { id: "d3", category: "Eat & Shop", italian: "Il conto", english: "The bill" },
+            { id: "d4", category: "Eat & Shop", italian: "Vorrei…", english: "I would like…" },
+            { id: "d5", category: "Eat & Shop", italian: "Ho bisogno di…", english: "I need…" },
+            { id: "d6", category: "Eat & Shop", italian: "Da bere", english: "To drink" },
+            { id: "d7", category: "Eat & Shop", italian: "Da mangiare", english: "To eat" },
+            { id: "d8", category: "Eat & Shop", italian: "Acqua del rubinetto", english: "Tap water" },
+            { id: "d9", category: "Eat & Shop", italian: "Acqua frizzante", english: "Sparkling water" },
+            { id: "d10", category: "Eat & Shop", italian: "Il vino della casa", english: "The house wine" },
+            { id: "d11", category: "Eat & Shop", italian: "È piccante?", english: "Is it spicy?" },
+            { id: "d12", category: "Eat & Shop", italian: "Il cameriere", english: "The waiter" },
+            { id: "d13", category: "Eat & Shop", italian: "Posso pagare?", english: "Can I pay?" },
+            { id: "d14", category: "Eat & Shop", italian: "Carta o contanti?", english: "Card or cash?" },
+            { id: "d15", category: "Eat & Shop", italian: "Posso avere una scatola?", english: "Can I have a box?" },
+            { id: "d16", category: "Eat & Shop", italian: "Buon appetito!", english: "Enjoy your meal!" },
+            { id: "d17", category: "Eat & Shop", italian: "Il cibo è delizioso", english: "The food is delicious" },
+            { id: "fd1", category: "Eat & Shop", italian: "Il pane", english: "Bread" },
+            { id: "fd2", category: "Eat & Shop", italian: "La carne", english: "Meat" },
+            { id: "fd3", category: "Eat & Shop", italian: "Il manzo", english: "Beef" },
+            { id: "fd4", category: "Eat & Shop", italian: "Il maiale", english: "Pork" },
+            { id: "fd5", category: "Eat & Shop", italian: "Il pollo", english: "Chicken" },
+            { id: "fd6", category: "Eat & Shop", italian: "L'agnello", english: "Lamb" },
+            { id: "fd7", category: "Eat & Shop", italian: "Il pesce", english: "Fish" },
+            { id: "fd9", category: "Eat & Shop", italian: "Il formaggio", english: "Cheese" },
+            { id: "fd10", category: "Eat & Shop", italian: "Le uova", english: "Eggs" },
+            { id: "fd11", category: "Eat & Shop", italian: "Il dolce", english: "Dessert" },
+            { id: "fd12", category: "Eat & Shop", italian: "Senza maionese, per favore", english: "Without mayonnaise, please" },
+            { id: "fd13", category: "Eat & Shop", italian: "La vodka", english: "Vodka" },
+            { id: "fd14", category: "Eat & Shop", italian: "Con ghiaccio", english: "With ice" },
+            { id: "fd15", category: "Eat & Shop", italian: "La birra", english: "Beer" },
+            { id: "fd16", category: "Eat & Shop", italian: "Il panino è caldo?", english: "Is the sandwich hot (warm)?" },
+            { id: "fd17", category: "Eat & Shop", italian: "Freddo", english: "Cold" },
+            { id: "fd18", category: "Eat & Shop", italian: "Crudo", english: "Raw" },
+            { id: "fd19", category: "Eat & Shop", italian: "Cotto", english: "Cooked" },
+            { id: "s1", category: "Eat & Shop", italian: "Quanto costa?", english: "How much does it cost?" },
+            { id: "s2", category: "Eat & Shop", italian: "È troppo caro", english: "It's too expensive" },
+            { id: "s3", category: "Eat & Shop", italian: "Lo prendo", english: "I'll take it" },
+            { id: "s4", category: "Eat & Shop", italian: "Il negozio", english: "The shop" },
+            { id: "s5", category: "Eat & Shop", italian: "C'è un mercato qui?", english: "Is there a market here?" },
+            { id: "s6", category: "Eat & Shop", italian: "La farmacia", english: "The pharmacy" },
+            { id: "s7", category: "Eat & Shop", italian: "Il supermercato", english: "The supermarket" },
+            { id: "s10", category: "Eat & Shop", italian: "Lo sconto", english: "The discount" },
+            { id: "s11", category: "Eat & Shop", italian: "Il resto", english: "The change (money)" },
+            { id: "s12", category: "Eat & Shop", italian: "La ricevuta", english: "The receipt" },
+            { id: "s13", category: "Eat & Shop", italian: "La taglia", english: "The size (clothing)" },
+            { id: "s14", category: "Eat & Shop", italian: "Dov'è il camerino?", english: "Where is the fitting room?" },
+            { id: "s15", category: "Eat & Shop", italian: "Vuole lo scontrino?", english: "Do you want a receipt?" },
+            { id: "s16", category: "Eat & Shop", italian: "Mi piace", english: "I like it" },
+            { id: "s17", category: "Eat & Shop", italian: "Sto cercando…", english: "I am looking for…" },
+            { id: "s18", category: "Eat & Shop", italian: "Ha una borsa?", english: "Do you have a bag?" },
+
+            // Time & Numbers (Giovedì consolidated here cleanly)
+            { id: "n1", category: "Time & Numbers", italian: "Zero", english: "Zero" },
+            { id: "n2", category: "Time & Numbers", italian: "Uno", english: "One" },
+            { id: "n3", category: "Time & Numbers", italian: "Due", english: "Two" },
+            { id: "n4", category: "Time & Numbers", italian: "Tre", english: "Three" },
+            { id: "n5", category: "Time & Numbers", italian: "Quattro", english: "Four" },
+            { id: "n6", category: "Time & Numbers", italian: "Cinque", english: "Five" },
+            { id: "n7", category: "Time & Numbers", italian: "Sei", english: "Six" },
+            { id: "n8", category: "Time & Numbers", italian: "Sette", english: "Seven" },
+            { id: "n9", category: "Time & Numbers", italian: "Otto", english: "Eight" },
+            { id: "n10", category: "Time & Numbers", italian: "Nove", english: "Nine" },
+            { id: "n11", category: "Time & Numbers", italian: "Dieci", english: "Ten" },
+            { id: "n12", category: "Time & Numbers", italian: "Undici", english: "Eleven" },
+            { id: "n13", category: "Time & Numbers", italian: "Dodici", english: "Twelve" },
+            { id: "n14", category: "Time & Numbers", italian: "Tredici", english: "Thirteen" },
+            { id: "n15", category: "Time & Numbers", italian: "Quattordici", english: "Fourteen" },
+            { id: "n16", category: "Time & Numbers", italian: "Quindici", english: "Fifteen" },
+            { id: "n17", category: "Time & Numbers", italian: "Sedici", english: "Sixteen" },
+            { id: "n18", category: "Time & Numbers", italian: "Diciassette", english: "Seventeen" },
+            { id: "n19", category: "Time & Numbers", italian: "Diciotto", english: "Eighteen" },
+            { id: "n20", category: "Time & Numbers", italian: "Diciannove", english: "Nineteen" },
+            { id: "n21", category: "Time & Numbers", italian: "Ventuno", english: "Twenty-one" },
+            { id: "n22", category: "Time & Numbers", italian: "Trentadue", english: "Thirty-two" },
+            { id: "n23", category: "Time & Numbers", italian: "Quarantatré", english: "Forty-three" },
+            { id: "n24", category: "Time & Numbers", italian: "Cinquantaquattro", english: "Fifty-four" },
+            { id: "n25", category: "Time & Numbers", italian: "Sessantacinque", english: "Sixty-five" },
+            { id: "n26", category: "Time & Numbers", italian: "Settantasei", english: "Seventy-six" },
+            { id: "n27", category: "Time & Numbers", italian: "Ottantasette", english: "Eighty-seven" },
+            { id: "n28", category: "Time & Numbers", italian: "Novantotto", english: "Ninety-eight" },
+            { id: "n30", category: "Time & Numbers", italian: "Cento", english: "One hundred" },
+            { id: "n31", category: "Time & Numbers", italian: "Mille", english: "One thousand" },
+            { id: "t1", category: "Time & Numbers", italian: "Oggi", english: "Today" },
+            { id: "t2", category: "Time & Numbers", italian: "Domani", english: "Tomorrow" },
+            { id: "t3", category: "Time & Numbers", italian: "Ieri", english: "Yesterday" },
+            { id: "t4", category: "Time & Numbers", italian: "Adesso", english: "Now" },
+            { id: "t5", category: "Time & Numbers", italian: "Presto", english: "Soon / Early" },
+            { id: "t6", category: "Time & Numbers", italian: "Tardi", english: "Late" },
+            { id: "t7", category: "Time & Numbers", italian: "Lunedì", english: "Monday" },
+            { id: "t8", category: "Time & Numbers", italian: "Martedì", english: "Tuesday" },
+            { id: "t9", category: "Time & Numbers", italian: "Mercoledì", english: "Wednesday" },
+            { id: "t10", category: "Time & Numbers", italian: "Giovedì", english: "Thursday" },
+            { id: "t11", category: "Time & Numbers", italian: "Venerdì", english: "Friday" },
+            { id: "t12", category: "Time & Numbers", italian: "Sabato", english: "Saturday" },
+            { id: "t13", category: "Time & Numbers", italian: "Domenica", english: "Sunday" },
+            { id: "t14", category: "Time & Numbers", italian: "Che ore sono?", english: "What time is it?" },
+            { id: "t15", category: "Time & Numbers", italian: "A che ora…?", english: "At what time…?" },
+            { id: "t16", category: "Time & Numbers", italian: "Le dodici e mezza", english: "12:30 pm" },
+            { id: "t17", category: "Time & Numbers", italian: "Le nove di mattina", english: "9:00 am" },
+
+            // Allergies
+            { id: "al_sf1", category: "Allergies", italian: "Sono allergico/a ai frutti di mare", english: "I am allergic to seafood" },
+            { id: "al_sf2", category: "Allergies", italian: "Sono allergico/a al pesce", english: "I am allergic to fish" },
+            { id: "al_sf3", category: "Allergies", italian: "Contiene frutti di mare?", english: "Does it contain seafood?" },
+            { id: "al_sf4", category: "Allergies", italian: "Contiene pesce?", english: "Does it contain fish?" },
+            { id: "al_sf5", category: "Allergies", italian: "Niente pesce o frutti di mare, per favore", english: "No fish or seafood please" },
+            { id: "al_sf6", category: "Allergies", italian: "È un'allergia grave", english: "It is a serious allergy" },
+            { id: "al_sf7", category: "Allergies", italian: "I frutti di mare", english: "Seafood" }, 
+            { id: "al_sf8", category: "Allergies", italian: "Le cozze", english: "Mussels" },
+            { id: "al_sf9", category: "Allergies", italian: "L'aragosta", english: "Lobster" },
+            { id: "al_sf10", category: "Allergies", italian: "I gamberi", english: "Shrimp / prawns" },
+            { id: "al_sf11", category: "Allergies", italian: "Il calamaro", english: "Squid" },
+            { id: "al_sf12", category: "Allergies", italian: "Le alici", english: "Anchovies" },
+            { id: "al_sf13", category: "Allergies", italian: "Il brodo di pesce", english: "Fish broth / stock" },
+            { id: "al_sy1", category: "Allergies", italian: "Sono allergico/a alla soia", english: "I am allergic to soy" },
+            { id: "al_sy2", category: "Allergies", italian: "Contiene soia?", english: "Does it contain soy?" },
+            { id: "al_sy3", category: "Allergies", italian: "Senza soia, per favore", english: "Without soy, please" },
+            { id: "al_sy4", category: "Allergies", italian: "La proteina di soia", english: "Soy protein" },
+            { id: "al_sy5", category: "Allergies", italian: "Il latte di soia", english: "Soy milk" },
+            { id: "al_sy6", category: "Allergies", italian: "Il tofu", english: "Tofu" },
+            { id: "al_sy7", category: "Allergies", italian: "Gli ingredienti", english: "The ingredients" },
+            { id: "al_sy8", category: "Allergies", italian: "Può controllare gli ingredienti?", english: "Can you check the ingredients?" }
+        ];
+
+        let DECK_DATA = [...MASTER_DECK_DATA];
+
+        // Global State Controller
+        const state = {
+            currentTab: 'study', // 'study' | 'dictionary' | 'chat'
+            selectedCategory: 'All', 
+            deck: [], 
+            currentIndex: 0,
+            isFlipped: false,
+            showEnglishFirst: false,
+            autoSpeak: true,
+            speechSpeed: 1.0,
+            selectedVoiceName: '',
+            knownCardIds: new Set(),
+            searchQuery: '',
+            customCards: [], // Persisted user creations via Gemini
+            
+            // AI Roleplay State
+            activeScenario: 'ristorante',
+            previousScenarioValue: 'ristorante',
+            chatHistory: [] // Dialogue bubbles
+        };
+
+        const SCENARIOS = {
+            ristorante: {
+                title: "Ordering at a Florentine Osteria",
+                aiPersona: "Vincenzo, the passionate restaurant owner of Osteria del Canto.",
+                initialPrompt: "Say: 'Benvenuti all'Osteria del Canto! Desiderate iniziare con un po' di antipasto toscano o un calice di vino?' ||| Welcome to Osteria del Canto! Would you like to start with some Tuscan antipasto or a glass of wine?",
+                systemPrompt: "You are Vincenzo, a friendly but classic Florentine waiter. Respond ONLY in short, beginner-to-intermediate level Italian (A1-B1 level) using simple sentence structures, common verbs, and high-frequency travel vocabulary. Avoid complex tenses, subjunctive moods, and rare or advanced vocabulary. Keep entries short (1-2 sentences). If user speaks wrong Italian, correct them in English in square brackets [like this] gently before replying. At the very end of your response, you must ALWAYS provide an English translation of your dialogue response, separated from the Italian content by a triple pipe '|||' delimiter. Example: Italian response [grammar correction] ||| English translation"
+            },
+            hotel: {
+                title: "Checking into an Albergo in Rome",
+                aiPersona: "Alessandra, the efficient concierge at Hotel Roma Centro.",
+                initialPrompt: "Say: 'Buonasera! Benvenuti a Roma. Posso avere i vostri documenti e il nome della prenotazione?' ||| Good evening! Welcome to Rome. May I have your documents and the reservation name?",
+                systemPrompt: "You are Alessandra, concierge in Rome. Speak politely and ONLY in simple beginner-to-intermediate level Italian (A1-B1 level). Restrict your vocabulary to easy, high-frequency standard words for tourists and completely avoid advanced grammatical tenses, subjunctive forms, or complex syntax. Keep responses to 1-2 sentences. Gently correct grammatical mistakes in brackets [in English] before continuing. At the very end of your response, you must ALWAYS provide an English translation of your dialogue response, separated from the Italian content by a triple pipe '|||' delimiter. Example: Italian response [grammar correction] ||| English translation"
+            },
+            treno: {
+                title: "Buying Train Tickets",
+                aiPersona: "Marco, the busy clerk at Santa Maria Novella station ticket booth.",
+                initialPrompt: "Say: 'Salve! Ditemi, dove dovete andare oggi? E volete viaggiare in prima o seconda classe?' ||| Hello! Tell me, where do you need to go today? And do you want to travel in first or second class?",
+                systemPrompt: "You are Marco, a fast-paced train ticket seller in Florence. Speak concisely and ONLY in short Italian phrases suitable for beginner-to-intermediate (A1-B1) language learners. Use simple present tense, basic future, or direct traveler requests. Avoid complex grammar rules, passive structures, or rare vocabulary. If user makes a grammatical mistake, write a brief English correction inside brackets [like this], then keep the sale going. At the very end of your response, you must ALWAYS provide an English translation of your dialogue response, separated from the Italian content by a triple pipe '|||' delimiter. Example: Italian response [grammar correction] ||| English translation"
+            },
+            indicazioni: {
+                title: "Asking for Directions in Venice",
+                aiPersona: "Giulia, a friendly Venetian local standing near the Rialto Bridge.",
+                initialPrompt: "Say: 'Ciao! Ti vedo con la mappa in mano, ti sei perso? Dove stai cercando di andare?' ||| Hi! I see you with a map in hand, are you lost? Where are you trying to go?",
+                systemPrompt: "You are Giulia, a helpful Venetian resident. Give directional cues (destra, sinistra, dritto) in clear, simple, beginner-to-intermediate level Italian (A1-B1 level). Avoid complex grammatical constructions, rare idioms, or localized Venetian dialect/slang; stick strictly to straightforward standard Italian. Correct any Italian grammar errors in brackets [like this], then suggest the way. At the very end of your response, you must ALWAYS provide an English translation of your dialogue response, separated from the Italian content by a triple pipe '|||' delimiter. Example: Italian response [grammar correction] ||| English translation"
+            }
+        };
+
+        // Unified Gemini LLM call wrapper with Exponential Backoff
+        async function callGemini(systemPrompt, userQuery, jsonSchema = null) {
+            const apiKey = ""; // Left empty so runtime can inject it
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                }
+            };
+
+            if (jsonSchema) {
+                payload.generationConfig = {
+                    responseMimeType: "application/json",
+                    responseSchema: jsonSchema
+                };
+            }
+
+            let delay = 1000;
+            const maxRetries = 3;
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const result = await response.json();
+                    return result.candidates?.[0]?.content?.parts?.[0]?.text;
+                } catch (error) {
+                    console.warn(`Gemini API connection retry ${i + 1}/${maxRetries} failed. Retrying...`, error);
+                    if (i === maxRetries - 1) throw error;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2; 
+                }
+            }
+        }
+
+        // Offline storage & custom loaders
+        function loadPersistence() {
+            try {
+                const stored = localStorage.getItem('italian_known_cards');
+                if (stored) {
+                    state.knownCardIds = new Set(JSON.parse(stored));
+                }
+                const savedEngFirst = localStorage.getItem('italian_eng_first');
+                if (savedEngFirst !== null) {
+                    state.showEnglishFirst = JSON.parse(savedEngFirst);
+                    document.getElementById('toggle-english-first').checked = state.showEnglishFirst;
+                }
+                const savedAutoSpeak = localStorage.getItem('italian_auto_speak');
+                if (savedAutoSpeak !== null) {
+                    state.autoSpeak = JSON.parse(savedAutoSpeak);
+                    document.getElementById('toggle-auto-speak').checked = state.autoSpeak;
+                }
+                const storedCustom = localStorage.getItem('italian_custom_cards');
+                if (storedCustom) {
+                    state.customCards = JSON.parse(storedCustom);
+                }
+                rebuildDynamicDeck();
+            } catch (e) {
+                console.warn("Storage restricted or unavailable. Running dynamically in sandbox.", e);
+            }
+        }
+
+        function savePersistence() {
+            try {
+                localStorage.setItem('italian_known_cards', JSON.stringify(Array.from(state.knownCardIds)));
+                localStorage.setItem('italian_eng_first', JSON.stringify(state.showEnglishFirst));
+                localStorage.setItem('italian_auto_speak', JSON.stringify(state.autoSpeak));
+                localStorage.setItem('italian_custom_cards', JSON.stringify(state.customCards));
+            } catch (e) {
+                // Silently swallow sandbox sandbox exceptions
+            }
+        }
+
+        function rebuildDynamicDeck() {
+            DECK_DATA = [...MASTER_DECK_DATA, ...state.customCards];
+        }
+
+        let synth = window.speechSynthesis;
+        let voices = [];
+
+        function initSpeechEngine() {
+            if (!synth) return;
+            function populateVoices() {
+                voices = synth.getVoices();
+                const voiceSelect = document.getElementById('voice-select');
+                voiceSelect.innerHTML = `<option value="">System Default Voice</option>`;
+                const italianVoices = voices.filter(v => v.lang.startsWith('it'));
+                const otherVoices = voices.filter(v => !v.lang.startsWith('it'));
+                
+                italianVoices.forEach(v => {
+                    const option = document.createElement('option');
+                    option.value = v.name;
+                    option.textContent = `🇮🇹 ${v.name}`;
+                    voiceSelect.appendChild(option);
+                });
+                otherVoices.forEach(v => {
+                    const option = document.createElement('option');
+                    option.value = v.name;
+                    option.textContent = `${v.name} (${v.lang})`;
+                    voiceSelect.appendChild(option);
+                });
+                if (!state.selectedVoiceName && italianVoices.length > 0) {
+                    state.selectedVoiceName = italianVoices[0].name;
+                    voiceSelect.value = italianVoices[0].name;
+                }
+            }
+            populateVoices();
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = populateVoices;
+            }
+        }
+
+        function speakItalianPhrase(event, customText = null) {
+            if (event) event.stopPropagation();
+            if (!synth) return;
+            synth.cancel();
+
+            const currentCard = state.deck[state.currentIndex];
+            if (!currentCard && !customText) return;
+
+            const textToSpeak = customText || currentCard.italian;
+            const cleanText = textToSpeak.replace('…', '').replace('...', '');
+
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            const selectedVoice = voices.find(v => v.name === state.selectedVoiceName);
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+            } else {
+                const itFallback = voices.find(v => v.lang.startsWith('it'));
+                if (itFallback) utterance.voice = itFallback;
+            }
+            utterance.lang = 'it-IT';
+            utterance.rate = state.speechSpeed;
+            synth.speak(utterance);
+        }
+
+        function getPhoneticAid(phrase) {
+            let p = phrase.toLowerCase();
+            p = p.replace(/ch/g, 'k')
+                 .replace(/gli/g, 'lyee')
+                 .replace(/gn/g, 'ny')
+                 .replace(/c([ie])/g, 'ch$1')
+                 .replace(/g([ie])/g, 'j$1')
+                 .replace(/sc([ie])/g, 'sh$1')
+                 .replace(/z/g, 'ts')
+                 .replace(/qu/g, 'kw')
+                 .replace(/u/g, 'oo');
+            return p;
+        }
+
+        function renderCategorySelector() {
+            const categories = ['All', ...new Set(DECK_DATA.map(d => d.category))];
+            const container = document.getElementById('category-chips-container');
+            container.innerHTML = '';
+
+            categories.forEach(cat => {
+                const isSelected = state.selectedCategory === cat;
+                const totalInCat = cat === 'All' ? DECK_DATA.length : DECK_DATA.filter(d => d.category === cat).length;
+                const knownInCat = cat === 'All' ? 
+                    Array.from(state.knownCardIds).filter(id => DECK_DATA.some(d => d.id === id)).length :
+                    Array.from(state.knownCardIds).filter(id => DECK_DATA.some(d => d.id === id && d.category === cat)).length;
+                
+                const friendlyLabel = cat;
+                const chip = document.createElement('button');
+                chip.className = `px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-semibold transition border flex items-center gap-1 cursor-pointer ${
+                    isSelected 
+                    ? 'bg-stone-900 border-stone-900 text-stone-100 shadow-sm' 
+                    : 'bg-white hover:bg-stone-50 border-stone-200 text-stone-600'
+                }`;
+                chip.onclick = () => changeCategory(cat);
+                chip.innerHTML = `
+                    <span>${cat === 'All' ? '🌍' : '🇮🇹'}</span>
+                    <span>${friendlyLabel}</span>
+                    <span class="text-[8px] opacity-70">(${knownInCat}/${totalInCat})</span>
+                `;
+                container.appendChild(chip);
+            });
+        }
+
+        function rebuildDeck() {
+            let baseFiltered = DECK_DATA.filter(d => state.selectedCategory === 'All' || d.category === state.selectedCategory);
+            let activeCards = baseFiltered.filter(d => !state.knownCardIds.has(d.id));
+            
+            if (activeCards.length === 0 && baseFiltered.length > 0) {
+                state.deck = [];
+                state.currentIndex = 0;
+            } else {
+                state.deck = activeCards;
+                if (state.currentIndex >= state.deck.length) {
+                    state.currentIndex = 0;
+                }
+            }
+            renderCard();
+            updateProgressStats();
+        }
+
+        function renderCard() {
+            const innerCard = document.getElementById('flashcard-inner');
+            const completeScreen = document.getElementById('deck-complete-screen');
+            closeExplainDrawer();
+            
+            // Hide action indicators next to AI icons
+            const scrollFront = document.getElementById('scroll-btn-front');
+            const scrollBack = document.getElementById('scroll-btn-back');
+            if (scrollFront) scrollFront.classList.add('hidden');
+            if (scrollBack) scrollBack.classList.add('hidden');
+
+            // Prevent spoiler answer leakage: Reset flip immediately with no-transition bypass
+            if (state.deck.length === 0) {
+                completeScreen.classList.remove('hidden');
+                innerCard.classList.add('hidden');
+                document.getElementById('card-index-tracker').textContent = `Finito!`;
+                return;
+            } else {
+                completeScreen.classList.add('hidden');
+                innerCard.classList.remove('hidden');
+            }
+
+            const current = state.deck[state.currentIndex];
+            document.getElementById('card-index-tracker').textContent = `Card ${state.currentIndex + 1} of ${state.deck.length}`;
+            document.getElementById('deck-identity').textContent = state.selectedCategory === 'All' ? 'All Words' : state.selectedCategory;
+
+            const frontTitle = document.getElementById('text-title-front');
+            const frontDisplay = document.getElementById('text-display-front');
+            const backTitle = document.getElementById('text-title-back');
+            const backDisplay = document.getElementById('text-display-back');
+            const phoneticDisplay = document.getElementById('phonetic-display');
+
+            const frontTag = document.getElementById('card-tag-front');
+            const backTag = document.getElementById('card-tag-back');
+            frontTag.textContent = current.category;
+            backTag.textContent = current.category;
+
+            if (state.showEnglishFirst) {
+                frontTitle.textContent = "ENGLISH";
+                frontDisplay.textContent = current.english;
+                phoneticDisplay.textContent = "";
+                backTitle.textContent = "ITALIAN";
+                backDisplay.textContent = current.italian;
+            } else {
+                frontTitle.textContent = "ITALIAN";
+                frontDisplay.textContent = current.italian;
+                const phonHelp = getPhoneticAid(current.italian);
+                phoneticDisplay.textContent = `Pronounce: "${phonHelp}"`;
+                backTitle.textContent = "ENGLISH";
+                backDisplay.textContent = current.english;
+            }
+
+            if (state.autoSpeak) {
+                setTimeout(() => {
+                    if (!state.showEnglishFirst) {
+                        speakItalianPhrase(null);
+                    }
+                }, 300);
+            }
+
+            setTimeout(() => {
+                innerCard.classList.remove('no-transition');
+            }, 50);
+        }
+
+        function flipCard() {
+            if (state.deck.length === 0) return;
+            state.isFlipped = !state.isFlipped;
+            const innerCard = document.getElementById('flashcard-inner');
+            if (state.isFlipped) {
+                innerCard.classList.add('is-flipped');
+                if (state.showEnglishFirst && state.autoSpeak) {
+                    setTimeout(() => speakItalianPhrase(null), 100);
+                }
+            } else {
+                innerCard.classList.remove('is-flipped');
+            }
+        }
+
+        function nextCard() {
+            if (state.deck.length <= 1) return;
+            const innerCard = document.getElementById('flashcard-inner');
+            innerCard.classList.add('no-transition'); // Instantly snap back
+            state.isFlipped = false;
+            innerCard.classList.remove('is-flipped');
+
+            state.currentIndex = (state.currentIndex + 1) % state.deck.length;
+            renderCard();
+        }
+
+        function prevCard() {
+            if (state.deck.length <= 1) return;
+            const innerCard = document.getElementById('flashcard-inner');
+            innerCard.classList.add('no-transition'); // Instantly snap back
+            state.isFlipped = false;
+            innerCard.classList.remove('is-flipped');
+
+            state.currentIndex = (state.currentIndex - 1 + state.deck.length) % state.deck.length;
+            renderCard();
+        }
+
+        function shuffleDeck() {
+            if (state.deck.length <= 1) return;
+            for (let i = state.deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [state.deck[i], state.deck[j]] = [state.deck[j], state.deck[i]];
+            }
+            state.currentIndex = 0;
+            renderCard();
+            showToast("Shuffled! 🔀");
+        }
+
+        function markAsKnown() {
+            if (state.deck.length === 0) return;
+            const current = state.deck[state.currentIndex];
+            state.knownCardIds.add(current.id);
+            savePersistence();
+            showToast(`"${current.italian}" learned! 🎓`);
+            rebuildDeck();
+            renderCategorySelector();
+        }
+
+        function markAsNeedPractice() {
+            showToast("Kept in study cycle! 💪");
+            nextCard();
+        }
+
+        function restoreAllMasteredInSession() {
+            const currentCatCards = DECK_DATA.filter(d => state.selectedCategory === 'All' || d.category === state.selectedCategory);
+            currentCatCards.forEach(d => state.knownCardIds.delete(d.id));
+            savePersistence();
+            rebuildDeck();
+            renderCategorySelector();
+            showToast("Cards restored for this category!");
+        }
+
+        // Hard Reset Triggers Custom Dialog
+        function triggerResetConfirmationModal() {
+            const modal = document.getElementById('reset-confirm-modal');
+            modal.classList.remove('hidden');
+        }
+
+        function toggleConfirmModal(visible) {
+            const modal = document.getElementById('reset-confirm-modal');
+            if (visible) modal.classList.remove('hidden');
+            else modal.classList.add('hidden');
+        }
+
+        function executeAllProgressReset() {
+            state.knownCardIds.clear();
+            state.customCards = [];
+            rebuildDynamicDeck();
+            savePersistence();
+            rebuildDeck();
+            renderCategorySelector();
+            toggleConfirmModal(false);
+            showToast("All progress and custom cards cleared!");
+        }
+
+        function toggleEnglishFirst(val) {
+            state.showEnglishFirst = val;
+            savePersistence();
+            renderCard();
+        }
+
+        function toggleAutoSpeak(val) {
+            state.autoSpeak = val;
+            savePersistence();
+        }
+
+        function updateSpeechSpeed(val) {
+            state.speechSpeed = parseFloat(val);
+            document.getElementById('speech-speed-val').textContent = `${val}x`;
+        }
+
+        function changeVoice() {
+            state.selectedVoiceName = document.getElementById('voice-select').value;
+        }
+
+        function changeCategory(catName) {
+            state.selectedCategory = catName;
+            state.currentIndex = 0;
+            rebuildDeck();
+            renderCategorySelector();
+        }
+
+        function updateProgressStats() {
+            const baseFiltered = DECK_DATA.filter(d => state.selectedCategory === 'All' || d.category === state.selectedCategory);
+            const knownInCat = baseFiltered.filter(d => state.knownCardIds.has(d.id)).length;
+            const remaining = baseFiltered.length - knownInCat;
+
+            document.getElementById('stats-known-count').textContent = knownInCat;
+            document.getElementById('stats-remaining-count').textContent = remaining;
+
+            const pct = baseFiltered.length > 0 ? Math.round((knownInCat / baseFiltered.length) * 100) : 0;
+            document.getElementById('session-percentage-badge').textContent = `${pct}% Mastered`;
+            document.getElementById('progress-bar-fill').style.width = `${pct}%`;
+        }
+
+        // AI Language Coach Explanation Feature
+        async function triggerExplainAI(event) {
+            if (event) event.stopPropagation();
+            if (state.deck.length === 0) return;
+
+            const card = state.deck[state.currentIndex];
+            const drawer = document.getElementById('ai-explain-drawer');
+            const loading = document.getElementById('ai-explain-loading');
+            const content = document.getElementById('ai-explain-content');
+
+            drawer.classList.remove('hidden');
+            loading.classList.remove('hidden');
+            content.classList.add('hidden');
+            content.innerHTML = '';
+
+            // Surface scrolling pill buttons
+            const scrollFront = document.getElementById('scroll-btn-front');
+            const scrollBack = document.getElementById('scroll-btn-back');
+            if (scrollFront) scrollFront.classList.remove('hidden');
+            if (scrollBack) scrollBack.classList.remove('hidden');
+
+            // Automatically smooth scroll user down to the loader
+            setTimeout(() => {
+                drawer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+
+            const systemPrompt = "You are a master Italian travel guide and linguist. Break down phrases concisely with 1 key cultural tip, 1 tricky pronunciation advice, and 2 travel scenario examples. Do not write a greeting or intro.";
+            const query = `Analyze the phrase: "${card.italian}" which means "${card.english}". Present the breakdown beautifully with emojis as bullet points.`;
+
+            try {
+                const response = await callGemini(systemPrompt, query);
+                loading.classList.add('hidden');
+                content.classList.remove('hidden');
+                
+                // Light parsing of newlines into readable bullet points
+                content.innerHTML = response
+                    .split('\n')
+                    .map(line => line.trim())
+                    .filter(line => line.length > 0)
+                    .map(line => `<p class="mb-1">${line}</p>`)
+                    .join('');
+            } catch (err) {
+                loading.classList.add('hidden');
+                content.classList.remove('hidden');
+                content.innerHTML = `
+                    <div class="bg-red-50 border border-red-200 text-red-950 rounded-xl p-3 flex flex-col gap-1 text-xs">
+                        <span class="font-bold text-red-900 flex items-center gap-1.5">
+                            <i class="fa-solid fa-wifi"></i> Connessione assente (Offline Mode)
+                        </span>
+                        <p class="leading-relaxed text-red-850 font-medium">
+                            The Gemini AI Coach requires an internet connection to retrieve custom context breakdowns. Please verify your connection and try again.
+                        </p>
+                    </div>`;
+            }
+        }
+
+        function scrollToExplain(event) {
+            if (event) event.stopPropagation();
+            const drawer = document.getElementById('ai-explain-drawer');
+            if (drawer) {
+                drawer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function closeExplainDrawer() {
+            document.getElementById('ai-explain-drawer').classList.add('hidden');
+            const scrollFront = document.getElementById('scroll-btn-front');
+            const scrollBack = document.getElementById('scroll-btn-back');
+            if (scrollFront) scrollFront.classList.add('hidden');
+            if (scrollBack) scrollBack.classList.add('hidden');
+        }
+
+        // Custom Card Creator (Gemini Structured Generation)
+        let tempCustomCard = null;
+
+        async function generateTranslationAI() {
+            const english = document.getElementById('custom-english-input').value.trim();
+            if (!english) return;
+
+            const loader = document.getElementById('creator-ai-loading');
+            const preview = document.getElementById('creator-preview-pane');
+            const genBtn = document.getElementById('creator-btn-generate');
+            const saveBtn = document.getElementById('creator-btn-save');
+
+            loader.classList.remove('hidden');
+            preview.classList.add('hidden');
+            saveBtn.classList.add('hidden');
+            genBtn.disabled = true;
+
+            const systemPrompt = "You are a bilingual translator. Translate user English queries to Italian. Return a strictly structured JSON response following the specified schema.";
+            const schema = {
+                type: "OBJECT",
+                properties: {
+                    italian: { type: "STRING", description: "The translated Italian phrase." },
+                    english: { type: "STRING", description: "The original clean English phrase." },
+                    phonetic: { type: "STRING", description: "Approximated phonetic representation for English speakers." },
+                    category: { type: "STRING", enum: ["Greetings", "Getting Around", "Eat & Shop", "Time & Numbers", "Allergies"], description: "The best matched category out of the five." }
+                },
+                required: ["italian", "english", "phonetic", "category"]
+            };
+
+            try {
+                const jsonText = await callGemini(systemPrompt, `Translate English to Italian: "${english}"`, schema);
+                const parsed = JSON.parse(jsonText);
+
+                tempCustomCard = {
+                    id: "custom_" + Date.now(),
+                    category: parsed.category,
+                    italian: parsed.italian,
+                    english: parsed.english,
+                    phonetic: parsed.phonetic
+                };
+
+                document.getElementById('creator-preview-italian').textContent = tempCustomCard.italian;
+                document.getElementById('creator-preview-phonetic').textContent = `"${tempCustomCard.phonetic}"`;
+                document.getElementById('creator-preview-category').textContent = tempCustomCard.category;
+
+                loader.classList.add('hidden');
+                preview.classList.remove('hidden');
+                saveBtn.classList.remove('hidden');
+                genBtn.disabled = false;
+            } catch (err) {
+                console.error(err);
+                loader.classList.add('hidden');
+                genBtn.disabled = false;
+                showToast("Error communicating with language model.");
+            }
+        }
+
+        function saveCustomAICard() {
+            if (!tempCustomCard) return;
+            state.customCards.push(tempCustomCard);
+            savePersistence();
+            rebuildDynamicDeck();
+            
+            // Reset active views
+            rebuildDeck();
+            renderCategorySelector();
+            toggleCreateModal(false);
+            
+            showToast(`Custom card "${tempCustomCard.italian}" added!`);
+            tempCustomCard = null;
+        }
+
+        function toggleCreateModal(visible) {
+            const modal = document.getElementById('create-card-modal');
+            if (visible) {
+                modal.classList.remove('hidden');
+                document.getElementById('custom-english-input').value = '';
+                document.getElementById('creator-preview-pane').classList.add('hidden');
+                document.getElementById('creator-btn-save').classList.add('hidden');
+                tempCustomCard = null;
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        // AI Interactive Coach Roleplay Integration
+        function startNewScenario() {
+            const select = document.getElementById('chat-scenario-select');
+            const scenarioKey = select.value;
+
+            if (scenarioKey === 'custom') {
+                toggleCustomTopicModal(true);
+                return;
+            }
+
+            state.previousScenarioValue = scenarioKey;
+            state.activeScenario = scenarioKey;
+            state.chatHistory = [];
+
+            const scenario = SCENARIOS[scenarioKey];
+            state.chatHistory.push({
+                sender: 'ai',
+                text: scenario.initialPrompt,
+                showTranslation: false
+            });
+            renderChatHistory();
+        }
+
+        function toggleCustomTopicModal(visible) {
+            const modal = document.getElementById('custom-topic-modal');
+            if (visible) {
+                modal.classList.remove('hidden');
+                document.getElementById('custom-topic-input').value = '';
+                document.getElementById('custom-topic-input').focus();
+            } else {
+                modal.classList.add('hidden');
+                // Revert selection dropdown back to the last active scenario key
+                document.getElementById('chat-scenario-select').value = state.previousScenarioValue;
+            }
+        }
+
+        function startCustomTopic() {
+            const topicInput = document.getElementById('custom-topic-input');
+            const topic = topicInput.value.trim();
+            if (!topic) {
+                showToast("Please write a topic to discuss! 🇮🇹");
+                return;
+            }
+
+            // Programmatically define the customized scenario structure
+            SCENARIOS.custom = {
+                title: `Custom: ${topic}`,
+                aiPersona: `A friendly conversation companion excited to chat about "${topic}".`,
+                initialPrompt: `Ciao! Ho saputo che ti piacerebbe fare conversazione su: "${topic}". Davvero interessante! Ti va di iniziare dicendomi qualcosa a riguardo? ||| Hi! I heard you'd like to chat about: "${topic}". Really interesting! Do you want to start by telling me something about it?`,
+                systemPrompt: `You are an encouraging and friendly Italian conversational companion chatting with an English-speaking learner about their chosen topic: "${topic}". You MUST speak ONLY in beginner-to-intermediate level Italian (A1-B1 level), using simple sentence structures, basic high-frequency travel words, and very straightforward grammatical forms. Avoid advanced tenses, subjunctive moods, idiomatic jargon, or complex syntax. Keep your sentences travel-friendly, natural, and relatively brief (1-2 sentences). Gently point out any grammatical or vocabulary errors in English inside brackets [like this] before responding in Italian. At the very end of your response, you must ALWAYS provide an English translation of your dialogue response, separated by a triple pipe '|||' delimiter. Example: Italian response [grammar correction] ||| English translation`
+            };
+
+            state.previousScenarioValue = 'custom';
+            state.activeScenario = 'custom';
+            state.chatHistory = [];
+
+            // Dynamic Option update inside dropdown
+            const customOption = document.querySelector('#chat-scenario-select option[value="custom"]');
+            if (customOption) {
+                customOption.textContent = `💬 Custom: ${topic.substring(0, 16)}${topic.length > 16 ? '...' : ''}`;
+            }
+
+            // Close modal cleanly
+            const modal = document.getElementById('custom-topic-modal');
+            modal.classList.add('hidden');
+
+            state.chatHistory.push({
+                sender: 'ai',
+                text: SCENARIOS.custom.initialPrompt,
+                showTranslation: false
+            });
+            renderChatHistory();
+            showToast("Custom conversation initialized! 💬");
+        }
+
+        function renderChatHistory() {
+            const zone = document.getElementById('chat-messages-zone');
+            zone.innerHTML = '';
+
+            state.chatHistory.forEach((msg, index) => {
+                const bubble = document.createElement('div');
+                bubble.className = "flex flex-col max-w-[85%] rounded-2xl p-3 text-xs shadow-xs " + 
+                    (msg.sender === 'user' 
+                        ? "bg-emerald-700 text-white ml-auto rounded-tr-none" 
+                        : "bg-white text-stone-850 border border-stone-200 rounded-tl-none");
+                
+                // Parse standard or delimiter-based messages
+                let displayItalian = msg.text;
+                let displayEnglish = "";
+
+                if (msg.text.includes('|||')) {
+                    const parts = msg.text.split('|||');
+                    displayItalian = parts[0].trim();
+                    displayEnglish = parts[1].trim();
+                }
+
+                // Inline conversion of grammatical errors [corrections]
+                let formattedText = displayItalian;
+                if (msg.sender === 'ai' && formattedText.includes('[')) {
+                    formattedText = formattedText.replace('[', '<div class="bg-indigo-50 border border-indigo-100 text-indigo-900 rounded-lg p-2 my-1.5 font-medium flex items-start gap-1"><i class="fa-solid fa-graduation-cap text-xs mt-0.5"></i><span>').replace(']', '</span></div>');
+                }
+
+                let translationToggleMarkup = "";
+                if (msg.sender === 'ai' && displayEnglish) {
+                    translationToggleMarkup = `
+                        <div class="mt-2 pt-1 border-t border-stone-100 flex flex-col gap-1.5">
+                            <button onclick="toggleChatTranslation(${index}, event)" class="text-[10px] text-stone-550 hover:text-emerald-700 font-bold flex items-center gap-1 transition self-start">
+                                <i class="fa-solid fa-language text-xs"></i> 
+                                <span>${msg.showTranslation ? 'Hide English' : 'Show English'}</span>
+                            </button>
+                            <div class="text-[11px] text-stone-600 font-normal italic leading-relaxed bg-stone-50 border border-stone-200 rounded-xl p-2.5 transition-all ${msg.showTranslation ? '' : 'hidden'}">
+                                ${displayEnglish}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                bubble.innerHTML = `
+                    <span class="text-[9px] uppercase tracking-wider font-extrabold opacity-60 mb-1">
+                        ${msg.sender === 'user' ? 'Tu (You)' : 'Coach'}
+                    </span>
+                    <div class="leading-relaxed font-semibold">${formattedText}</div>
+                    ${translationToggleMarkup}
+                `;
+                zone.appendChild(bubble);
+            });
+
+            // Smooth scroll to bottom
+            setTimeout(() => {
+                zone.scrollTop = zone.scrollHeight;
+            }, 50);
+        }
+
+        // Toggle the visible state of the English translation segment inside any chat balloon
+        function toggleChatTranslation(index, event) {
+            if (event) event.stopPropagation();
+            state.chatHistory[index].showTranslation = !state.chatHistory[index].showTranslation;
+            renderChatHistory();
+        }
+
+        async function submitUserChatMessage() {
+            const input = document.getElementById('chat-input-field');
+            const text = input.value.trim();
+            if (!text) return;
+
+            input.value = '';
+            state.chatHistory.push({ sender: 'user', text: text });
+            renderChatHistory();
+
+            // Insert temporary AI typing dot
+            state.chatHistory.push({ sender: 'ai', text: 'Typing...', showTranslation: false });
+            renderChatHistory();
+
+            const scenario = SCENARIOS[state.activeScenario];
+            const systemPrompt = scenario.systemPrompt;
+            
+            // Build history context query
+            const contextQuery = state.chatHistory
+                .slice(0, -1) // skip typing dot
+                .map(msg => {
+                    // Extract Italian version for context history feed
+                    const parsedText = msg.text.includes('|||') ? msg.text.split('|||')[0].trim() : msg.text;
+                    return `${msg.sender === 'user' ? 'User' : 'Coach'}: ${parsedText}`;
+                })
+                .join('\n') + `\nUser just said: "${text}". Please write your conversational dialogue response in Italian. Correct errors if they made any in brackets, and ALWAYS append the English translation at the very end separated by a triple pipe '|||'.`;
+
+            try {
+                const response = await callGemini(systemPrompt, contextQuery);
+                // Replace typing dot
+                state.chatHistory.pop();
+                state.chatHistory.push({ sender: 'ai', text: response, showTranslation: false });
+                renderChatHistory();
+            } catch (err) {
+                state.chatHistory.pop();
+                state.chatHistory.push({ sender: 'ai', text: "[Failed to receive response from AI Coach. Check connection]", showTranslation: false });
+                renderChatHistory();
+            }
+        }
+
+        function handleChatSubmitKey(event) {
+            if (event.key === 'Enter') {
+                submitUserChatMessage();
+            }
+        }
+
+        function resetChat() {
+            startNewScenario();
+        }
+
+        // Global Tab management
+        function switchTab(tabId) {
+            state.currentTab = tabId;
+            const tabBtnStudy = document.getElementById('tab-btn-study');
+            const tabBtnDict = document.getElementById('tab-btn-dictionary');
+            const tabBtnChat = document.getElementById('tab-btn-chat');
+
+            const studyCont = document.getElementById('study-container');
+            const dictCont = document.getElementById('dictionary-container');
+            const chatCont = document.getElementById('chat-container');
+            const categoryBar = document.getElementById('category-selector-section');
+
+            // Reset buttons styling
+            tabBtnStudy.className = "flex-grow py-2 text-center rounded-lg font-bold transition-all hover:bg-stone-800 hover:text-white";
+            tabBtnDict.className = "flex-grow py-2 text-center rounded-lg font-bold transition-all hover:bg-stone-800 hover:text-white";
+            tabBtnChat.className = "flex-grow py-2 text-center rounded-lg font-bold transition-all hover:bg-stone-800 hover:text-white flex items-center justify-center gap-1";
+
+            studyCont.classList.add('hidden');
+            dictCont.classList.add('hidden');
+            chatCont.classList.add('hidden');
+            categoryBar.classList.add('hidden');
+
+            if (tabId === 'study') {
+                tabBtnStudy.className = "flex-grow py-2 text-center rounded-lg font-bold transition-all text-white bg-stone-700";
+                studyCont.classList.remove('hidden');
+                categoryBar.classList.remove('hidden');
+                rebuildDeck();
+            } else if (tabId === 'dictionary') {
+                tabBtnDict.className = "flex-grow py-2 text-center rounded-lg font-bold transition-all text-white bg-stone-700";
+                dictCont.classList.remove('hidden');
+                renderDictionary();
+            } else if (tabId === 'chat') {
+                tabBtnChat.className = "flex-grow py-2 text-center rounded-lg font-bold transition-all text-white bg-stone-700 flex items-center justify-center gap-1";
+                chatCont.classList.remove('hidden');
+                if (state.chatHistory.length === 0) {
+                    startNewScenario();
+                }
+            }
+        }
+
+        // Directory Tab rendering engine
+        function renderDictionary() {
+            const listContainer = document.getElementById('dictionary-list');
+            listContainer.innerHTML = '';
+            const categories = [...new Set(DECK_DATA.map(d => d.category))];
+            
+            categories.forEach(cat => {
+                const wordsInCat = DECK_DATA.filter(d => d.category === cat && (
+                    state.searchQuery === '' ||
+                    d.italian.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+                    d.english.toLowerCase().includes(state.searchQuery.toLowerCase())
+                ));
+
+                if (wordsInCat.length === 0) return;
+
+                const catSection = document.createElement('div');
+                catSection.className = "space-y-1";
+                
+                catSection.innerHTML = `
+                    <h4 class="text-[10px] font-bold uppercase tracking-wider text-stone-400 bg-stone-100 px-2.5 py-1 rounded-md flex items-center justify-between">
+                        <span>${cat}</span>
+                        <span class="text-[8px] bg-stone-200/80 text-stone-650 px-1.5 py-0.5 rounded-full">${wordsInCat.length} items</span>
+                    </h4>
+                    <div class="grid grid-cols-1 gap-1">
+                        ${wordsInCat.map(item => {
+                            const isKnown = state.knownCardIds.has(item.id);
+                            return `
+                                <div class="px-3 py-1.5 rounded-xl border border-stone-200 hover:bg-emerald-50/10 hover:border-emerald-200 transition flex items-center justify-between gap-4 bg-white">
+                                    <div class="space-y-0.5 min-w-0">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="font-bold text-stone-800 text-xs truncate">${item.italian}</span>
+                                            ${isKnown ? `<span class="text-emerald-650 text-[10px]" title="Mastered"><i class="fa-solid fa-circle-check"></i></span>` : ''}
+                                        </div>
+                                        <p class="text-[10px] text-stone-500 truncate">${item.english}</p>
+                                    </div>
+                                    <div class="flex items-center gap-1 shrink-0">
+                                        <button onclick="speakItalianPhrase(event, '${item.italian.replace(/'/g, "\\'")}')" class="w-7 h-7 rounded-full bg-stone-50 hover:bg-emerald-50 hover:text-emerald-800 text-stone-500 border border-stone-200 flex items-center justify-center transition">
+                                            <i class="fa-solid fa-volume-high text-[10px]"></i>
+                                        </button>
+                                        <button onclick="toggleMasteryInDictionary('${item.id}', event)" class="w-7 h-7 rounded-full ${isKnown ? 'bg-emerald-50 text-emerald-800 border-emerald-300' : 'bg-stone-55 text-stone-400 border-stone-200'} hover:bg-emerald-50 border flex items-center justify-center transition">
+                                            <i class="fa-solid fa-check text-[10px]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+                listContainer.appendChild(catSection);
+            });
+
+            if (listContainer.children.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-8 text-stone-400">
+                        <p class="text-sm font-bold">Nessun risultato (No results)</p>
+                        <p class="text-[10px]">We couldn't find matching words for "${state.searchQuery}"</p>
+                    </div>
+                `;
+            }
+        }
+
+        function handleSearch(val) {
+            state.searchQuery = val;
+            renderDictionary();
+        }
+
+        function toggleMasteryInDictionary(id, event) {
+            if (event) event.stopPropagation();
+            if (state.knownCardIds.has(id)) {
+                state.knownCardIds.delete(id);
+            } else {
+                state.knownCardIds.add(id);
+            }
+            savePersistence();
+            renderDictionary();
+            rebuildDeck();
+            renderCategorySelector();
+        }
+
+        function toggleConfigModal(visible) {
+            const modal = document.getElementById('config-modal');
+            if (visible) modal.classList.remove('hidden');
+            else modal.classList.add('hidden');
+        }
+
+        function toggleKeyboardModal(visible) {
+            const modal = document.getElementById('keyboard-modal');
+            if (visible) modal.classList.remove('hidden');
+            else modal.classList.add('hidden');
+        }
+
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = "bg-stone-900 text-stone-100 px-3 py-1.5 rounded-xl shadow-md text-[10px] font-semibold border-l-4 border-emerald-500 flex items-center gap-1.5 mt-1 opacity-0 transition-all duration-300 transform translate-y-2 pointer-events-auto";
+            toast.innerHTML = `<span class="text-emerald-400">⚡</span> ${message}`;
+            
+            container.appendChild(toast);
+            requestAnimationFrame(() => {
+                toast.classList.remove('opacity-0', 'translate-y-2');
+            });
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT') return;
+
+            if (state.currentTab === 'study') {
+                switch (e.code) {
+                    case 'Space':
+                        e.preventDefault();
+                        flipCard();
+                        break;
+                    case 'ArrowRight':
+                        e.preventDefault();
+                        nextCard();
+                        break;
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        prevCard();
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        speakItalianPhrase(null);
+                        break;
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        markAsKnown();
+                        break;
+                }
+            }
+        });
+
+        // Initialize Onload Tasks
+        window.onload = function () {
+            loadPersistence();
+            initSpeechEngine();
+            rebuildDeck();
+            renderCategorySelector();
+        };
+    </script>
+</body>
+</html>
