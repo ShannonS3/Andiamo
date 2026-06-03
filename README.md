@@ -4,7 +4,7 @@ Andiamo! Italian Flashcard & Coach 🇮🇹
 
 Andiamo! is a responsive, single-file web application designed to help English-speaking travelers learn essential Italian phrases. It bridges the gap between traditional flashcard study and modern, interactive language coaching by integrating generative AI.
 
-🚀 Features
+## 🚀 Features
 
 Smart Flashcards: A mobile-first, 3D-animated flashcard deck featuring essential travel categories (Greetings, Getting Around, Eat & Shop, Time & Numbers, Allergies).
 
@@ -18,7 +18,7 @@ Dictionary Directory: A searchable index of all vocabulary with text-to-speech p
 
 Zero-Install Design: Built as a single-file HTML application using Tailwind CSS, making it extremely easy to host and access on any device.
 
-🛠 Tech Stack
+## 🛠 Tech Stack
 
 Frontend: HTML5, Tailwind CSS, Vanilla JavaScript.
 
@@ -26,7 +26,7 @@ AI Engine: Google Gemini API (gemini-3-flash-preview).
 
 Features: Web Speech API (TTS), LocalStorage (Persistence).
 
-💡 How to Use
+## 💡 How to Use
 
 Open the App: Navigate to the hosted URL (e.g., your GitHub Pages link).
 
