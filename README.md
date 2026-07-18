@@ -1,39 +1,42 @@
-# Andiamo
-Italian Flashcard &amp; AI Coach
-Andiamo! Italian Flashcard & Coach 🇮🇹
+# Andiamo!
 
-Andiamo! is a responsive, single-file web application designed to help English-speaking travelers learn essential Italian phrases. It bridges the gap between traditional flashcard study and modern, interactive language coaching by integrating generative AI.
+A pocket Italian companion for a trip to Italy: flashcards, culture tips, and travel guides in one small web app that works completely offline.
 
-## 🚀 Features
+Andiamo! is a single self-contained web page. It runs in any modern browser, installs to a phone's home screen, and keeps working with no signal once it has loaded. There is no server, no account, and no sign-in. It was built for a Florence-based summer trip, so the train routes and day trips follow that itinerary, but the phrases and cultural tips are useful to anyone traveling in Italy.
 
-Smart Flashcards: A mobile-first, 3D-animated flashcard deck featuring essential travel categories (Greetings, Getting Around, Eat & Shop, Time & Numbers, Allergies).
+## What's inside
 
-AI Coach Integration: Powered by Google Gemini, the "Ask Gemini" feature provides cultural context, pronunciation tips, and usage examples for any phrase.
+The app has five tabs along the bottom.
 
-Interactive AI Roleplay: Practice real-world scenarios like ordering food at a ristorante or checking into a hotel with an AI coach that provides gentle, real-time grammatical corrections.
+### Cards
 
-Custom Card Creator: Use AI to generate your own personalized flashcards on the fly.
+178 travel phrases you will actually use, grouped into Greetings, Getting Around, Eat & Shop, and Time & Numbers, plus a Custom category for your own. Tap a card to flip between Italian and English, tap the speaker to hear it, and mark "Lo so!" once you know it. Shuffle runs through the whole deck before any card comes back around, so nothing repeats until you have seen the rest.
 
-Dictionary Directory: A searchable index of all vocabulary with text-to-speech pronunciation support.
+### Culture
 
-Zero-Install Design: Built as a single-file HTML application using Tailwind CSS, making it extremely easy to host and access on any device.
+46 short, practical tips for blending in and avoiding tourist traps, sorted into Etiquette, Hassle-avoidance, Insider knowledge, and Practical. Each tip leads with the advice and pairs it with a relevant Italian phrase you can tap to hear. A search box finds a tip by keyword when you remember the gist but not the title.
 
-## 🛠 Tech Stack
+### Trains
 
-Frontend: HTML5, Tailwind CSS, Vanilla JavaScript.
+A tap-through guide to the trip's train days: arriving into Italy, the run to Florence, and day trips to Bologna, Viareggio, and Venice, plus the flight home. Each route opens to travel times, platforms, connection notes, seat tips, and a plain-language reference for buying and validating tickets.
 
-AI Engine: Google Gemini API (gemini-3-flash-preview).
+### Trips
 
-Features: Web Speech API (TTS), LocalStorage (Persistence).
+An illustrated day-trip guide to nine cities within reach of Florence: Florence, Bologna, Prato, Viareggio, Venice, Milan, Verona, Rome, and San Gimignano. Each city covers food and drink, music, art, nightlife, offbeat sights, honest downsides, and insider tips.
 
-## 💡 How to Use
+### Create
 
-Open the App: Navigate to the hosted URL (e.g., your GitHub Pages link).
+Add your own flashcards with the Italian, the English, and a pronunciation guide. They save on your device and drop straight into the deck.
 
-Browse & Study: Use the Flashcards tab to review core phrases. Mark cards as "Known" to track your progress.
+## Highlights
 
-Learn: If a phrase is confusing, tap the "Gemini AI" button for an in-depth breakdown.
+- **Fully offline.** Everything is baked into one file. After the first load, it needs no connection.
+- **Installable.** Add it to your home screen and it opens full-screen like a native app.
+- **Real pronunciation.** Audio comes from your device's built-in Italian voice, so it works offline too.
+- **Dark mode**, synced across every tab.
+- **Progress that sticks.** The cards you know, your custom cards, and your settings are saved in your browser.
+- **Private by design.** Nothing is tracked and nothing leaves your device.
 
-Practice: Head to the "AI Coach" tab to pick a scenario and start a real-time conversation.
+## Built with
 
-Settings: Use the sliders (top right) to configure speech speed, dialect, and study preferences.
+Plain HTML, CSS, and JavaScript in a single file. A small service worker caches the app so it loads with no network, and a web manifest lets it install to a home screen.
