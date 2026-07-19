@@ -133,6 +133,7 @@ Andiamo! helps a traveler prepare for and get around Italy. It combines a phrase
 
 - **NFR-5.1** Interactive controls must have accessible labels, and the flashcard must be operable by keyboard.
 - **NFR-5.2** Tap targets must be large enough for comfortable one-handed use, and text must remain readable in light and dark themes.
+- **NFR-5.3** Sentence-length reading text (card notes, advisories, tips) must be at least 14px. Sizes below 13px are reserved for short uppercase labels, badges, and metadata. All text must meet WCAG 2.1 AA contrast (4.5:1) in both themes.
 
 ### 5.6 Maintainability and deployment
 

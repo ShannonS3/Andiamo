@@ -1,4 +1,4 @@
-const CACHE = "andiamo-v16";
+const CACHE = "andiamo-v18";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png"];
 const PAGE_NETWORK_TIMEOUT_MS = 3500;
 
