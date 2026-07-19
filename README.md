@@ -18,11 +18,11 @@ The app has four tabs along the bottom.
 
 ### Trains
 
-A tap-through guide to the trip's train days: arriving into Italy, the run to Florence, and day trips to Bologna, Viareggio, and Venice, plus the flight home. Each route opens to travel times, platforms, connection notes, seat tips, and a plain-language reference for buying and validating tickets.
+A tap-through guide to the trip's train days: arriving into Italy, the run to Florence, day trips to Bologna, Viareggio, and Venice, then the overnight move to Milan and the flight home. Each route opens to travel times, platforms, connection notes, seat tips, and a plain-language reference for buying and validating tickets.
 
 ### Cities
 
-An illustrated day-trip guide to nine cities within reach of Florence: Florence, Bologna, Prato, Viareggio, Venice, Milan, Verona, Rome, and San Gimignano. Each city covers food and drink, music, art, nightlife, offbeat sights, honest downsides, and insider tips.
+An illustrated day-trip guide to nine cities within reach of Florence: Florence, Bologna, Prato, Viareggio, Venice, Milan, Verona, Rome, and San Gimignano. Each city covers food and drink, music, art, nightlife, offbeat sights, honest downsides, and insider tips, in the same order every time so you learn where to look. Cities with a covered train route link straight to it, and every route page links back to its city guide.
 
 ### Your own cards
 
@@ -31,6 +31,7 @@ Tap the + button on the Cards tab to add your own flashcards with the Italian, t
 ## Highlights
 
 - **Fully offline.** Everything is baked into one file. After the first load, it needs no connection.
+- **Real navigation.** Every screen has its own history entry, so your phone's back gesture moves between screens instead of closing the app, and routes like `#trains/bologna` can be shared as links.
 - **Installable.** Add it to your home screen and it opens full-screen like a native app.
 - **Real pronunciation.** Audio comes from your device's built-in Italian voice, so it works offline too.
 - **Dark mode**, synced across every tab.

@@ -52,6 +52,7 @@ Andiamo! helps a traveler prepare for and get around Italy. It combines a phrase
 - **FR-1.3** A header must show the app name (**Andiamo!**) and a dark-mode toggle on every section.
 - **FR-1.4** The dark-mode toggle must switch the whole app between light and dark themes, and the choice must persist across sessions.
 - **FR-1.5** The interface must be laid out for a phone-width screen and remain usable up to a centered maximum width on larger screens.
+- **FR-1.6** Every screen (tab, train route detail, city) must map to a URL hash route so the browser's history drives navigation: the device back gesture or back button must move backward through screens instead of exiting the app, and hash links (e.g. `#trains/bologna`) must deep-link. Tapping the Trains tab while a route detail is open must return to the route list.
 
 ### 4.2 Flashcards (Cards tab)
 
@@ -79,16 +80,19 @@ Andiamo! helps a traveler prepare for and get around Italy. It combines a phrase
 
 ### 4.4 Trains tab
 
-- **FR-4.1** The Trains section must present a list of the trip's train legs (arrival, the run to Florence, day trips, and the flight home).
-- **FR-4.2** Selecting a route must open a detail view with its travel times, platforms or connections, seat tips, and any service alerts, and must offer a way back to the list.
+- **FR-4.1** The Trains section must present a list of the trip's train legs (arrival, the run to Florence, day trips, the overnight move to Milan, and the flight home).
+- **FR-4.2** Selecting a route must open a detail view with its travel times, platforms or connections, seat tips, and any service alerts, and must offer a way back to the list. The route header bar (back control + route name) must stay pinned below the app header while the detail scrolls. Each route that ends in a city covered by the Cities guide must include a City guide link card that jumps to that city's section.
 - **FR-4.3** The section must include a general rail reference (buying, validating, and the difference between high-speed and regional tickets).
 - **FR-4.4** All train content must be static reference material and must not require a network call.
 
 ### 4.5 Cities tab
 
 - **FR-5.1** The Cities section must present a day-trip guide covering nine cities within reach of Florence.
-- **FR-5.2** Each city must cover its highlights across categories such as food and drink, music, art, nightlife, offbeat sights, honest downsides, and insider tips.
+- **FR-5.2** Each city must cover its highlights as a series of category cards. The canonical category order is: **Known For, Food & Drink, Music, Nightlife, Art, Gay Culture, Performance, Offbeat Attractions, Historical Sites, Downsides, Insider Tips**. A city may omit categories it has nothing for, and may insert a city-specific feature or warning card, but the categories it does include must appear in this order so readers learn where to find things.
 - **FR-5.3** A jump navigation must let the user move quickly to any city.
+- **FR-5.5** City sections whose route is covered by the Trains guide (Bologna, Viareggio, Venice, Milan) must link their train badge to that route's detail page, and the back gesture from that route must return the user to their place in the Cities page.
+- **FR-5.6** Tappable train badges must be visually distinct from static travel-time notes: linked badges are solid pills with a "route →" suffix; static badges are quiet outline text. Train badges must not display ticket prices, which change too often to be reliable reference material.
+- **FR-5.7** A back-to-top control must appear on the Cities page after roughly 1.5 screens of scrolling and smooth-scroll the user back to the top. It must not appear on other tabs.
 - **FR-5.4** All trip content must be static reference material and must not require a network call.
 
 ### 4.6 Custom card creator (via Cards)

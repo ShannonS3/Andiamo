@@ -865,20 +865,41 @@ html{-webkit-text-size-adjust:100%}
 #view-trips .nav-shell::after{content:'';position:absolute;top:0;right:0;bottom:0;width:44px;background:linear-gradient(to left, var(--deep), transparent);pointer-events:none;}
 #view-trips nav a.active{color:var(--gold-light);border-bottom-color:var(--gold);}
 
-/* ── Tappable train badges ── */
-#view-trips a.train-badge{cursor:pointer;transition:background 0.2s;text-decoration:none;}
+/* ── Train badges ──
+   Tappable route badges are solid pills with a gold edge and a "route →"
+   suffix; static travel-time notes are quiet outline text, so only real
+   links read as tappable. */
+#view-trips a.train-badge{cursor:pointer;transition:background 0.2s,transform 0.1s;text-decoration:none;border:1px solid color-mix(in oklab, var(--gold) 50%, transparent);}
 #view-trips a.train-badge:hover{background:var(--wine);}
-#view-trips .train-badge .go{opacity:0.65;}
+#view-trips a.train-badge:active{transform:scale(0.97);}
+#view-trips .train-badge .go{opacity:0.85;font-weight:600;white-space:nowrap;}
+#view-trips span.train-badge:not(.home-badge):not(.warn-badge){background:transparent;color:var(--warm-gray);border:1px solid color-mix(in oklab, var(--warm-gray) 35%, transparent);}
+#view-trips .train-badge.warn-badge{background:#7A3B1E;color:#F7F2E8;}
 
 
 
 #view-trains{line-height:1.5;}
 #view-trips{line-height:1.7;}
-#view-trains .tgbar{position:static;}
+#view-trains .tgbar{top:64px;z-index:30;}
+#view-trains .trip-chv{width:16px;height:16px;stroke:var(--ink3);fill:none;stroke-width:2.5;flex-shrink:0;}
 #view-trips nav{top:64px;z-index:30;}
 #view-trips .container{max-width:none;padding:0;}
 #view-trips .hero{border-radius:24px;min-height:64vh;}
 #view-trips .city-section{scroll-margin-top:120px;}
+
+/* ── Back-to-top button (Cities page) ── */
+#toTop{
+  position:fixed;right:16px;bottom:calc(88px + env(safe-area-inset-bottom,0px));
+  z-index:35;width:44px;height:44px;border-radius:999px;
+  border:1px solid color-mix(in oklab, var(--gold) 45%, transparent);
+  background:var(--deep);color:var(--gold-light);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 14px color-mix(in oklab, var(--foreground) 25%, transparent);
+  cursor:pointer;opacity:0;pointer-events:none;transform:translateY(8px);
+  transition:opacity .2s,transform .2s;-webkit-tap-highlight-color:transparent;
+}
+#toTop.showing{opacity:1;pointer-events:auto;transform:none;}
+#toTop svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.5;}
 </style>
 </head>
 <body>
@@ -969,13 +990,25 @@ html{-webkit-text-size-adjust:100%}
   </div>
 </div>
 
+<div class="trip" onclick="show('milano')">
+  <div class="trip-icon" style="background:var(--olive-bg)">🏙️</div>
+  <div class="trip-body">
+    <div class="trip-name">To Milano</div>
+    <div class="trip-route">Firenze → Milano Centrale &middot; Thu Jul 31</div>
+    <div class="trip-stats">
+      <span class="trip-stat">1 hr 40 min</span>
+      <span class="trip-stat" style="background:var(--olive-bg);color:var(--olive)">Overnight</span>
+    </div>
+  </div>
+</div>
+
 <div class="trip" onclick="show('flight')">
   <div class="trip-icon" style="background:var(--ruby-bg)">✈️</div>
   <div class="trip-body">
     <div class="trip-name">Flight Home</div>
-    <div class="trip-route">Firenze → Malpensa &middot; Sat Aug 1</div>
+    <div class="trip-route">Milano Centrale → Malpensa &middot; Fri Aug 1</div>
     <div class="trip-stats">
-      <span class="trip-stat key">Leave by 6:55 am</span>
+      <span class="trip-stat key">Boards 11 am</span>
     </div>
   </div>
 </div>
@@ -1086,6 +1119,16 @@ html{-webkit-text-size-adjust:100%}
   <div><b>Sit LEFT &mdash; Levanto to La Spezia</b><span>This is the scenic highlight of the whole trip. Once south of La Spezia the coastal scenery fades. The route heads inland through Pisa and into Tuscany. Either side gives rolling Tuscan hills. No single side dominates.</span></div>
 </div>
 
+<div class="sec">City guide</div>
+<div class="trip" onclick="goToCityGuide('florence')">
+  <div class="trip-icon" style="background:var(--terra-bg)">🎨</div>
+  <div class="trip-body">
+    <div class="trip-name">Firenze city guide</div>
+    <div class="trip-route">Your home base &middot; food, art, nightlife &amp; insider tips</div>
+  </div>
+  <svg class="trip-chv" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+</div>
+
 <div class="spacer"></div>
 </div>
 
@@ -1127,6 +1170,16 @@ html{-webkit-text-size-adjust:100%}
   <div><b>Any seat is fine</b><span>The Bologna run is short &mdash; 35 minutes &mdash; and mostly through tunnels under the Apennines. Don't stress about seat positioning for views. Pick whatever is comfortable.</span></div>
 </div>
 
+<div class="sec">City guide</div>
+<div class="trip" onclick="goToCityGuide('bologna')">
+  <div class="trip-icon" style="background:var(--terra-bg)">🏛️</div>
+  <div class="trip-body">
+    <div class="trip-name">Bologna city guide</div>
+    <div class="trip-route">Food, art, nightlife &amp; insider tips</div>
+  </div>
+  <svg class="trip-chv" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+</div>
+
 <div class="spacer"></div>
 </div>
 
@@ -1161,6 +1214,16 @@ html{-webkit-text-size-adjust:100%}
 <div class="seat">
   <div class="seat-badge">R →</div>
   <div><b>Sit right side heading to Viareggio</b><span>The route crosses the Apennines and descends to the coast. Sit on the right side heading west toward Viareggio for glimpses of mountains, then sea as you arrive.</span></div>
+</div>
+
+<div class="sec">City guide</div>
+<div class="trip" onclick="goToCityGuide('viareggio')">
+  <div class="trip-icon" style="background:var(--sea-bg)">🏖️</div>
+  <div class="trip-body">
+    <div class="trip-name">Viareggio city guide</div>
+    <div class="trip-route">Beaches, seafood &amp; insider tips</div>
+  </div>
+  <svg class="trip-chv" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
 </div>
 
 <div class="spacer"></div>
@@ -1241,52 +1304,142 @@ html{-webkit-text-size-adjust:100%}
 
 <p class="p"><strong>Suggested approach:</strong> Take a water taxi from the station to San Marco on arrival &mdash; it&rsquo;s a stunning private entrance to the city at &euro;12&ndash;16 per person split five ways. Use individual vaporetto tickets for any later rides during the day.</p>
 
+<div class="sec">City guide</div>
+<div class="trip" onclick="goToCityGuide('venice')">
+  <div class="trip-icon" style="background:var(--olive-bg)">🌊</div>
+  <div class="trip-body">
+    <div class="trip-name">Venezia city guide</div>
+    <div class="trip-route">Food, art, nightlife &amp; insider tips</div>
+  </div>
+  <svg class="trip-chv" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+</div>
+
 <div class="spacer"></div>
 </div>
 
 
 <!-- ═══════════════════════════════════
-     FLIGHT HOME
+     MILANO: Firenze → Milano Centrale
      ═══════════════════════════════════ -->
-<div class="tgview" id="v-flight">
+<div class="tgview" id="v-milano">
 <div class="tgbar">
   <div class="tgbar-back" onclick="show('home')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></div>
-  <div><h2>Firenze → Malpensa</h2><div class="tgbar-sub">Flight day &middot; Sat Aug 1 &middot; 11 am departure</div></div>
+  <div><h2>Firenze → Milano</h2><div class="tgbar-sub">Thu Jul 31 &middot; Last day before home</div></div>
 </div>
 
-<div class="alert a-terra">
-  <svg class="alert-icon" width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-  <div><b>11 am flight</b>Leave Firenze S.M.Novella no later than 6:55 am. That puts you at Milano Centrale by 8:35 am, Malpensa by 9:30 am &mdash; a full 90 minutes before an 11:00 am departure. If you want a bigger buffer, take the 6:25 am train from Firenze.</div>
+<div class="alert a-olive">
+  <svg class="alert-icon" width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="16 10 12 14 8 10"/></svg>
+  <div><b>No rush today</b>Your flight isn&rsquo;t until tomorrow. Pick any Frecciarossa or Italo train that gets you to Milano Centrale before noon so you can check in, drop bags, and have the afternoon free.</div>
 </div>
 
-<div class="sec">Trains</div>
+<div class="facts">
+  <div class="fact"><div class="fact-label">Duration</div><div class="fact-val">1h 40m</div><div class="fact-note">high-speed direct</div></div>
+  <div class="fact"><div class="fact-label">Hotel check-in</div><div class="fact-val">Noon</div><div class="fact-note">NYX, next to Centrale</div></div>
+</div>
+
+<div class="sec">Train</div>
 <div class="tbl">
-  <div class="tbl-row"><span class="k">Train 1</span><span class="v">Frecciarossa or Italo</span></div>
+  <div class="tbl-row"><span class="k">Operator</span><span class="v">Frecciarossa (Trenitalia) or Italo</span></div>
   <div class="tbl-row"><span class="k">Route</span><span class="v">Firenze S.M.Novella → Milano Centrale</span></div>
   <div class="tbl-row"><span class="k">Duration</span><span class="v">About 1 hr 40 min</span></div>
   <div class="tbl-row"><span class="k">Frequency</span><span class="v">Approx. every 25 min from 5:55 am</span></div>
-  <div class="tbl-row"><span class="k">Last train</span><span class="v">Departs 10:18 pm</span></div>
-</div>
-<div class="tbl">
-  <div class="tbl-row"><span class="k">Train 2</span><span class="v">Malpensa Express (Trenord)</span></div>
-  <div class="tbl-row"><span class="k">Route</span><span class="v">Milano Centrale → Malpensa T1</span></div>
-  <div class="tbl-row"><span class="k">Duration</span><span class="v">About 51 min</span></div>
-  <div class="tbl-row"><span class="k">Frequency</span><span class="v">Departs at :25 and :55 past each hour, 5:25 am to 11:25 pm</span></div>
-</div>
-<div class="tbl">
-  <div class="tbl-row"><span class="k">Recommended departure</span><span class="v hi">6:25 am or 6:55 am from Firenze</span></div>
-  <div class="tbl-row"><span class="k">Buffer at airport</span><span class="v">Arrive Malpensa by 9:00 am for 11:00 am flight</span></div>
+  <div class="tbl-row"><span class="k">Suggested departure</span><span class="v hi">Around 9:55&ndash;10:25 am from Firenze</span></div>
+  <div class="tbl-row"><span class="k">Arrive Milano</span><span class="v">Around 11:35 am&ndash;12:05 pm</span></div>
 </div>
 
+<div class="sec">Booking</div>
+<p class="p">Book 2&ndash;4 weeks in advance on Trainline. Compare Frecciarossa and Italo. This is not flight-critical, so an <strong>Economy</strong> or <strong>Super Economy</strong> fare is fine.</p>
+
+<div class="sec">Lunch plan</div>
 <div class="alert a-amber">
-  <svg class="alert-icon" width="16" height="16" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-  <div><b>Fare type matters today</b>Book a <strong>Base</strong> fare (Trenitalia) or <strong>Flex</strong> fare (Italo) for this train &mdash; not Economy or Super Economy. Base/Flex fares allow changes up to 1 hour after departure and give you an 80% refund if cancelled before departure. The extra cost is small insurance on a flight-critical journey.</div>
+  <svg class="alert-icon" width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  <div><b>Riposo is lighter in Milan than the south, but plan ahead</b>Most restaurants serve lunch noon&ndash;2:30 pm. Some smaller shops close 1&ndash;3 pm. If you arrive before noon, check in and head straight to lunch. If you arrive after noon, eat first at Mercato Centrale inside the station, then check in.</div>
 </div>
+
+<div class="ex">
+  <div class="ex-hd" onclick="this.closest('.ex').classList.toggle('open')">
+    <div class="ex-dot" style="background:var(--olive)"></div>
+    <span class="ex-lbl">Arrive before noon</span>
+    <span class="ex-sub">Check in → lunch nearby</span>
+    <svg class="ex-chv" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="ex-bd"><p class="p">Drop bags at the hotel (2-min walk from Centrale), then walk to lunch. The area around Via Vittor Pisani and Piazza della Repubblica has sit-down restaurants within 5&ndash;10 minutes. You&rsquo;ll have time for a proper meal before exploring.</p></div>
+</div>
+<div class="ex">
+  <div class="ex-hd" onclick="this.closest('.ex').classList.toggle('open')">
+    <div class="ex-dot" style="background:var(--amber)"></div>
+    <span class="ex-lbl">Arrive after noon</span>
+    <span class="ex-sub">Eat at Mercato Centrale first</span>
+    <svg class="ex-chv" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="ex-bd"><p class="p"><strong>Mercato Centrale Milano</strong> is the artisan food hall on the upper level of Milano Centrale station. Two dozen stalls: fresh pasta, pizza, fried seafood, gelato, craft beer. Open all day, no riposo. Eat here before checking in so you don&rsquo;t lose the lunch window. Quality is high &mdash; this is not a food court.</p></div>
+</div>
+
+<div class="sec">Your afternoon in Milan</div>
+<p class="p">Central Milan is compact and walkable. The <strong>Duomo</strong> is about 15 minutes by Metro (yellow line M3 from Centrale) or a 30-minute walk. From the Duomo, everything clusters together:</p>
+
+<div class="tbl">
+  <div class="tbl-row"><span class="k">Duomo rooftop</span><span class="v">Walk on top of the cathedral. The highlight of Milan.</span></div>
+  <div class="tbl-row"><span class="k">Galleria Vittorio Emanuele II</span><span class="v">Grand glass-domed arcade, 1 min from Duomo. Free to walk through.</span></div>
+  <div class="tbl-row"><span class="k">La Scala</span><span class="v">2 min from Galleria. See the exterior; museum if you&rsquo;re interested.</span></div>
+  <div class="tbl-row"><span class="k">Castello Sforzesco + Parco Sempione</span><span class="v">10 min walk from Duomo. Castle, then park behind it to cool off.</span></div>
+</div>
+
+<p class="p"><strong>Evening:</strong> Milan&rsquo;s <strong>aperitivo</strong> tradition runs 6&ndash;9 pm. Order a Negroni or Spritz at a bar and you&rsquo;ll often get a spread of snacks included. The Navigli canal district (Metro M2, Porta Genova) is the classic spot for this. Pack early &mdash; tomorrow is travel day.</p>
 
 <div class="sec">Seat tips</div>
 <div class="seat">
   <div class="seat-badge">↔</div>
   <div><b>Book facing window seats at a table</b><span>Florence and Milan are both terminus stations, so the train reverses direction at Firenze. You cannot guarantee which direction you will face. Book two window seats at a facing table so you can swap if needed. The Tuscan and Lombard countryside is beautiful either way.</span></div>
+</div>
+
+<div class="sec">City guide</div>
+<div class="trip" onclick="goToCityGuide('milan')">
+  <div class="trip-icon" style="background:var(--olive-bg)">🏙️</div>
+  <div class="trip-body">
+    <div class="trip-name">Milano city guide</div>
+    <div class="trip-route">Fashion, La Scala, aperitivo &amp; insider tips</div>
+  </div>
+  <svg class="trip-chv" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+</div>
+
+<div class="spacer"></div>
+</div>
+
+
+<!-- ═══════════════════════════════════
+     FLIGHT HOME: Milano Centrale → Malpensa
+     ═══════════════════════════════════ -->
+<div class="tgview" id="v-flight">
+<div class="tgbar">
+  <div class="tgbar-back" onclick="show('home')"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></div>
+  <div><h2>Milano → Malpensa</h2><div class="tgbar-sub">Flight day &middot; Fri Aug 1 &middot; Boards 11 am</div></div>
+</div>
+
+<div class="alert a-ruby">
+  <svg class="alert-icon" width="16" height="16" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  <div><b>Only one train to catch</b>Walk from your hotel to Milano Centrale (2 min) and board the Malpensa Express. That&rsquo;s it. No connections, no high-speed train, no platform scramble. August is peak season at Malpensa &mdash; plan for 3 hours before departure.</div>
+</div>
+
+<div class="facts">
+  <div class="fact"><div class="fact-label">To airport</div><div class="fact-val">51 min</div><div class="fact-note">Malpensa Express</div></div>
+  <div class="fact"><div class="fact-label">Leave by</div><div class="fact-val">7:55 am</div><div class="fact-note">arrive airport ~8:45 am</div></div>
+</div>
+
+<div class="sec">Train</div>
+<div class="tbl">
+  <div class="tbl-row"><span class="k">Train</span><span class="v">Malpensa Express (Trenord)</span></div>
+  <div class="tbl-row"><span class="k">Route</span><span class="v">Milano Centrale → Malpensa T1</span></div>
+  <div class="tbl-row"><span class="k">Duration</span><span class="v">About 51 min</span></div>
+  <div class="tbl-row"><span class="k">Frequency</span><span class="v">Departs at :25 and :55 past each hour</span></div>
+  <div class="tbl-row"><span class="k">Recommended train</span><span class="v hi">7:55 am &mdash; arrives Malpensa ~8:45 am</span></div>
+  <div class="tbl-row"><span class="k">Backup train</span><span class="v">7:25 am &mdash; arrives ~8:15 am (bigger buffer)</span></div>
+  <div class="tbl-row"><span class="k">Price</span><span class="v">~&euro;15 fixed. Buy at kiosk, Trenord app, or Trainline.</span></div>
+</div>
+
+<div class="alert a-amber">
+  <svg class="alert-icon" width="16" height="16" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  <div><b>August is peak season</b>Malpensa security and passport control can be slow in August. Boarding at 11 am means departure around 11:30 am. Arriving by 8:45 am gives you over 2 hours of buffer. If you&rsquo;re a &ldquo;rather be early&rdquo; traveler, take the 7:25 am train instead.</div>
 </div>
 
 <div class="spacer"></div>
@@ -1373,9 +1526,9 @@ html{-webkit-text-size-adjust:100%}
 <div class="tbl">
   <div class="tbl-row"><span class="k">Super Economy</span><span class="v">Cheapest. No changes, no refund.</span></div>
   <div class="tbl-row"><span class="k">Economy</span><span class="v">Low price. Limited changes.</span></div>
-  <div class="tbl-row"><span class="k">Base / Flex</span><span class="v hi">Changeable. 80% refund. Use for flight day.</span></div>
+  <div class="tbl-row"><span class="k">Base / Flex</span><span class="v hi">Changeable. 80% refund. Use when timing is critical.</span></div>
 </div>
-<p class="p">For day trips, Economy or Super Economy is fine. For the flight-critical Firenze → Milano train, always book Base (Trenitalia) or Flex (Italo).</p>
+<p class="p">For day trips and the Firenze → Milano overnight leg, Economy or Super Economy is fine &mdash; you sleep in Milano the night before the flight, so no high-speed train is flight-critical. Flight morning is just the fixed-price Malpensa Express. The July 21 arrival leg is the one to book flexible (Base/Flex) because of the trackwork.</p>
 
 <div class="spacer"></div>
 </div>
@@ -1394,13 +1547,11 @@ function show(id){
 
 <!-- HERO -->
 <section class="hero">
-  <p class="hero-eyebrow">Florence as home base</p>
   <h1 class="hero-title"><em>Italy</em><br>Explored</h1>
-  <p class="hero-subtitle">Eight day trips. One home base. All within reach by train.</p>
+  <p class="hero-subtitle">Day trips from Florence</p>
   <div class="hero-divider"></div>
   <p class="hero-pitch">
-    Florence sits at the center of Italy's high-speed rail network — which means you can base yourself in one of the world's great cities and still reach Bologna in 35 minutes, Rome in 90, Venice or Milan in two hours. Every destination below is a day trip from the same front door.<br><br>
-    Tap any city below to explore what it has: food and drink, music, nightlife, art, gay culture, performance, offbeat attractions, historical sites, honest downsides, and insider tips.
+    Florence sits at the center of Italy's high-speed rail network — which means you can base yourself in one of the world's great cities and still reach Bologna in 35 minutes, Rome in 90, Venice or Milan in two hours. Every destination below is a day trip from the same front door.
   </p>
   <div class="hero-cities">
     <a class="hero-city-tag" onclick="goToCity('florence')">Florence</a>
@@ -1413,7 +1564,6 @@ function show(id){
     <a class="hero-city-tag" onclick="goToCity('rome')">Rome</a>
     <a class="hero-city-tag" onclick="goToCity('sangimignano')">San Gimignano</a>
   </div>
-  <p class="scroll-hint">↓ Scroll to explore</p>
 </section>
 
 <!-- NAV -->
@@ -1503,7 +1653,7 @@ function show(id){
     <p class="city-number">Day Trip — 35 minutes</p>
     <h2 class="city-name"><em>Bologna</em></h2>
     <p class="city-tagline">La Grassa, La Dotta, La Rossa — The Fat, The Learned, The Red</p>
-    <a class="train-badge" onclick="goToTrainRoute('bologna')">🚄 35 min · High-speed Frecciarossa · ~$13–27 <span class="go">· route →</span></a>
+    <a class="train-badge" onclick="goToTrainRoute('bologna','bologna')">🚄 35 min · High-speed Frecciarossa <span class="go">· route →</span></a>
     <p class="city-intro">Bologna is Italy's best-kept secret and its most livable city. It has the <strong>world's best food</strong> (that's not an opinion — it's a consensus), the <strong>world's oldest university</strong> (founded 1088), 62 kilometers of UNESCO-listed medieval porticos covering virtually every street, and a radical left-wing political tradition that has produced Italy's most progressive cultural institutions. It also has <strong>hidden canals</strong> — an entire Venetian-scale waterway system that was mostly buried underground in the 19th century. You can still glimpse it. Bologna is extraordinary and perpetually underrated. Go.</p>
   </div>
   <div class="cat-grid">
@@ -1564,7 +1714,7 @@ function show(id){
     <p class="city-number">Day Trip — 20 minutes</p>
     <h2 class="city-name"><em>Prato</em></h2>
     <p class="city-tagline">Medieval Tuscany with a Chinese soul and a contemporary art obsession</p>
-    <span class="train-badge">🚄 20 min · Regional train from Florence SMN · ~$5</span>
+    <span class="train-badge">🚄 20 min · Regional train from Florence SMN</span>
     <p class="city-intro">Prato is Florence's overlooked neighbor — and it contains two things that have almost no equivalent in the rest of Italy. The first is <strong>Centro Pecci</strong>, Italy's first institution built specifically for contemporary art, housed in a spectacularly weird spiraling building that looks like a spaceship touched down in a Tuscan industrial park. The second is a genuine, thriving <strong>Chinese community</strong> — about 12% of the city's population, one of the largest concentrations in Europe, mostly from Wenzhou and Zhejiang provinces. These are not tourists. They have been here for generations. Walking Prato's Chinatown, on Via Pistoiese and Via Filzi, is like stepping into a completely different world 20 minutes from Florence.</p>
   </div>
   <div class="cat-grid">
@@ -1620,7 +1770,7 @@ function show(id){
     <p class="city-number">Day Trip — ~1.5 hours</p>
     <h2 class="city-name"><em>Viareggio</em></h2>
     <p class="city-tagline">Tuscan sea, Puccini's lake, and Italy's gay summer capital — five minutes apart</p>
-    <a class="train-badge" onclick="goToTrainRoute('viareggio')">🚄 ~1h20 · Change at Pisa · ~$11–20 <span class="go">· route →</span></a>
+    <a class="train-badge" onclick="goToTrainRoute('viareggio','viareggio')">🚄 ~1h20 · Change at Pisa <span class="go">· route →</span></a>
     <p class="city-intro">Viareggio is a Tuscan beach resort — beautiful lungomare promenade, excellent seafood, the warm Ligurian sea — and also the gateway to something extraordinary. Five minutes by taxi or bike is <strong>Torre del Lago Puccini</strong>, the lakeside village where Giacomo Puccini lived, composed his greatest operas, and is buried. Every summer (July–September), the shore of Lake Massaciuccoli hosts the <strong>Puccini Festival</strong> — world-class opera in an open-air theater with the lake as backdrop. And Torre del Lago is simultaneously <strong>Italy's only officially designated gay-friendly destination</strong>, with a thriving summer LGBTQ+ scene anchored by the legendary Mamamia club. Opera and gay nightlife, 200 meters apart, on a Tuscan lake. Viareggio is a very specific kind of perfect.</p>
   </div>
   <div class="cat-grid">
@@ -1641,16 +1791,16 @@ function show(id){
       <p><strong>Peak season only (June–September)</strong>: the beach clubs (bagni) transform into bars and outdoor dance floors after dark along the lungomare promenade. In Torre del Lago, <strong>Mamamia</strong> runs Friday and Saturday nights at full capacity — outdoor dance floors, drag shows, themed nights, live performances. The lungomare at midnight in July is buzzing.</p>
     </div>
     <div class="cat-card">
+      <div class="cat-label">Art</div>
+      <p>Viareggio's great art form is the Carnival float — but these aren't seasonal trinkets. They are <strong>monumental satirical sculptures</strong>, some six stories tall, engineered from papier-mâché and wire over months by teams of artists working in the <strong>Cittadella del Carnevale</strong> workshops. The Carnival tradition produced its own school of sculptors; the floats have depicted every pope, president, and dictator since 1873 with grotesque satirical brilliance. The Cittadella is open year-round — visiting the construction hangar mid-season, with half-finished giants looming in the dark, is one of the stranger art experiences in Italy. The nearby <strong>Passeggiata a Mare</strong> (seafront promenade) has early 20th-century Art Nouveau and Art Deco architecture worth seeking out — cafés and bathhouse buildings from the 1920s that make Viareggio feel briefly like a Riviera from another era.</p>
+    </div>
+    <div class="cat-card">
       <div class="cat-label">Gay Culture</div>
       <p><strong>Torre del Lago is Italy's only officially designated gay-friendly destination</strong> — the Friendly Versilia consortium has been running queer tourism here since 1998, backed by the Tuscany Region. <strong>Mamamia</strong>: the beating heart of Italy's summer gay nightlife — indoor/outdoor dance floors, drag shows, themed nights, the Mama Beach private gay beach. The annual <strong>Torre Pride Fest</strong> runs all summer. <strong>Gay Fat Tuesday (Mardi Gras)</strong> in August draws crowds from across Europe. Peak season: July–August. Bar Cox, Baddy, and Le 3 Scimmie Pub round out the strip.</p>
     </div>
     <div class="cat-card">
       <div class="cat-label">Performance</div>
       <p>The <strong>Viareggio Carnival</strong> (February) is one of Europe's most spectacular events — enormous mechanical papier-mâché floats, some the size of buildings, making savage political satire through grotesque and beautiful imagery. Running since 1873. The <strong>Cittadella del Carnevale</strong> is open year-round for visits to the float construction workshops — a genuine experience of monumental folk craft in progress. Think of it as a living museum of satirical sculpture.</p>
-    </div>
-    <div class="cat-card">
-      <div class="cat-label">Art</div>
-      <p>Viareggio's great art form is the Carnival float — but these aren't seasonal trinkets. They are <strong>monumental satirical sculptures</strong>, some six stories tall, engineered from papier-mâché and wire over months by teams of artists working in the <strong>Cittadella del Carnevale</strong> workshops. The Carnival tradition produced its own school of sculptors; the floats have depicted every pope, president, and dictator since 1873 with grotesque satirical brilliance. The Cittadella is open year-round — visiting the construction hangar mid-season, with half-finished giants looming in the dark, is one of the stranger art experiences in Italy. The nearby <strong>Passeggiata a Mare</strong> (seafront promenade) has early 20th-century Art Nouveau and Art Deco architecture worth seeking out — cafés and bathhouse buildings from the 1920s that make Viareggio feel briefly like a Riviera from another era.</p>
     </div>
     <div class="cat-card">
       <div class="cat-label">Offbeat Attractions</div>
@@ -1681,7 +1831,7 @@ function show(id){
     <p class="city-number">Day Trip — 2 hours</p>
     <h2 class="city-name"><em>Venice</em></h2>
     <p class="city-tagline">The most beautiful city ever built, being loved to death</p>
-    <a class="train-badge" onclick="goToTrainRoute('venezia')">🚄 2h 05min · High-speed Frecciarossa/Italo · ~$22–44 <span class="go">· route →</span></a>
+    <a class="train-badge" onclick="goToTrainRoute('venezia','venice')">🚄 2h 05min · High-speed Frecciarossa/Italo <span class="go">· route →</span></a>
     <p class="city-intro">Venice is not real. It cannot be real. It is 118 islands connected by 400 bridges, built entirely on wooden pilings driven into a lagoon mud, for over a thousand years the most powerful maritime republic in the world, and it looks like someone designed it to make you believe in God — or at least in human ambition. The Grand Canal, the mosaics of San Marco, the morning light on pale stone above green water. <strong>Nothing prepares you for it.</strong> It is also genuinely, seriously over-visited in summer — but go anyway. Just go early, walk away from San Marco, eat where locals eat, and you'll find the real city still breathing underneath the tourism.</p>
   </div>
   <div class="cat-grid">
@@ -1742,7 +1892,7 @@ function show(id){
     <p class="city-number">Day Trip — ~2 hours</p>
     <h2 class="city-name"><em>Milan</em></h2>
     <p class="city-tagline">Italy's engine — fashion, nightlife, La Scala, and the best aperitivo in the world</p>
-    <span class="train-badge">🚄 1h 55min · Frecciarossa · ~$22–44</span>
+    <a class="train-badge" onclick="goToTrainRoute('milano','milan')">🚄 1h 40min · High-speed Frecciarossa/Italo <span class="go">· route →</span></a>
     <p class="city-intro">Milan operates at a different speed than the rest of Italy. It is wealthy, driven, international, and — especially after dark — wildly alive. It has Italy's best nightlife, its most sophisticated gay scene, its greatest opera house, and a free meal that comes with every drink (the Navigli aperitivo tradition). It also contains one of the most significant works of art in human history: Leonardo da Vinci's Last Supper, painted directly onto a refectory wall in 1495, still there, accessible in groups of 25 for 15 minutes at a time. <strong>Book the Last Supper six months in advance</strong> — no exceptions. Go to Milan for the night, stay as long as you can.</p>
   </div>
   <div class="cat-grid">
@@ -1803,7 +1953,7 @@ function show(id){
     <p class="city-number">Day Trip — ~1.5 hours</p>
     <h2 class="city-name"><em>Verona</em></h2>
     <p class="city-tagline">Romeo and Juliet is the least interesting thing about it</p>
-    <span class="train-badge">🚄 ~1h 30min · High-speed · ~$16–33</span>
+    <span class="train-badge">🚄 ~1h 30min · High-speed</span>
     <p class="city-intro">Everyone knows Verona from Shakespeare. Almost no one knows what Verona actually has — which is a 2,000-year-old Roman amphitheater that is still the site of one of the world's greatest live performance experiences, a food culture centered on wine so extraordinary it had to invent an entirely new winemaking method (drying the grapes before pressing to concentrate them into Amarone), and a compact, walkable medieval city that is strikingly beautiful and dramatically undervisited compared to Florence or Venice. <strong>If you can attend the Arena Opera Festival in summer, go.</strong> But even without it, Verona repays a day richly.</p>
   </div>
   <div class="cat-grid">
@@ -1864,7 +2014,7 @@ function show(id){
     <p class="city-number">Day Trip — ~1.5 hours</p>
     <h2 class="city-name"><em>Rome</em></h2>
     <p class="city-tagline">The Eternal City doesn't need a pitch. But here's one anyway.</p>
-    <span class="train-badge">🚄 1h 32min · Frecciarossa · ~$22–55</span>
+    <span class="train-badge">🚄 1h 32min · Frecciarossa</span>
     <p class="city-intro">Everything you've heard about Rome is true, and it's still not enough. The scale of its history — 2,800 years of continuous habitation, the entire arc of Western civilization played out in a single city — is genuinely overwhelming. But Rome is not a museum. <strong>Rome is alive</strong> in a way that Florence, for all its beauty, sometimes isn't. Trastevere at midnight. Cacio e pepe at a table on the street. Dancing inside the Baths of Caracalla at 2am. A jazz band playing from a vintage tram as it rolls past the Colosseum. Monks' bones arranged into decorative patterns in a crypt you stumble into by accident. <strong>Rome is inexhaustible. A day trip barely opens the door — but even the door is worth opening.</strong></p>
   </div>
   <div class="cat-grid">
@@ -1925,7 +2075,7 @@ function show(id){
     <p class="city-number">Day Trip — but read this first</p>
     <h2 class="city-name"><em>San Gimignano</em></h2>
     <p class="city-tagline">The Manhattan of the Middle Ages — and the hardest city on this list to reach</p>
-    <span class="train-badge" style="background:#7A3B1E;">⚠️ No direct train · Bus via Poggibonsi · ~1h 45min each way</span>
+    <span class="train-badge warn-badge">⚠️ No direct train · Bus via Poggibonsi · ~1h 45min each way</span>
     <p class="city-intro">San Gimignano is one of the most beautiful small towns in Tuscany — 14 medieval towers rising above rolling hills, a UNESCO World Heritage historic center, Italy's first DOC white wine, and a world-class contemporary art gallery that has absolutely no right to be here and is all the more wonderful for it. But it earns a warning you won't see anywhere else on this guide: <strong>getting here from Florence is genuinely difficult, time-consuming, and requires planning that none of the other day trips demand.</strong> There is no direct train. You take a train to Poggibonsi, then a bus to San Gimignano, then reverse the whole thing to get back. That's roughly 3.5 hours of transit for a round trip, not counting time in town. The group should go in knowing that. If the medieval towers and hilltop Tuscan landscape are calling you, the effort is worth it. Just don't underestimate it.</p>
   </div>
 
@@ -1984,6 +2134,10 @@ function show(id){
 </footer>
     </section>
   </main>
+
+  <button id="toTop" aria-label="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
 
   <nav class="tabs">
     <div class="tabs-in">
@@ -2578,6 +2732,10 @@ function renderCreate() {
 const RENDER = { cards: renderCards, culture: renderCulture, create: renderCreate, trains: function(){}, trips: function(){} };
 let currentTab = "cards";
 function switchTab(tab) {
+  /* Route through the hash router (second script block) so every screen gets a
+     history entry and the phone's back gesture works. The router calls back in
+     with __routing set to do the actual render. */
+  if (!window.__routing && typeof navTo === "function") { navTo(tab === "cards" ? "cards" : tab); return; }
   currentTab = tab;
   document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t.dataset.tab === tab || (tab === "create" && t.dataset.tab === "cards")));
   document.querySelectorAll(".view").forEach((v) => v.classList.remove("active"));
@@ -2604,12 +2762,78 @@ document.addEventListener("keydown", (e) => {
 });
 
 renderCards();
-(function(){var h=(location.hash||"").replace("#","");if(h==="culture"||h==="create"||h==="trains"||h==="trips")switchTab(h);})();
+/* Initial route is applied by applyHash() in the navigation script below. */
 </script>
 <script>
-function show(id){document.querySelectorAll('.tgview').forEach(function(v){v.classList.remove('on');});var el=document.getElementById('v-'+id);if(el)el.classList.add('on');try{window.scrollTo({top:0,behavior:'instant'});}catch(e){try{window.scrollTo(0,0);}catch(e2){}}}
-function goToCity(id){var el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
-function goToTrainRoute(id){switchTab('trains');show(id);}
+/* ══════════════════════════════════════════════════════════════════════
+   HASH ROUTER
+   Every screen (tab, train route, city) maps to a location.hash, so the
+   browser's own history drives navigation and the phone's back gesture /
+   back button walks backward through screens instead of exiting the app.
+   Routes:  #cards  #culture  #create  #trains  #trains/<route>
+            #trips  #trips/<city>
+   ══════════════════════════════════════════════════════════════════════ */
+window.__routing = false;
+
+function applyHash(){
+  window.__routing = true;
+  var h = (location.hash || '').replace(/^#/, '');
+  var parts = h.split('/');
+  var tab = parts[0] || 'cards';
+  if (!(tab in RENDER)) tab = 'cards';
+  switchTab(tab);
+  if (tab === 'trains'){
+    var v = (parts[1] && document.getElementById('v-' + parts[1])) ? parts[1] : 'home';
+    renderTrainView(v);
+  }
+  if (tab === 'trips' && parts[1]){
+    var el = document.getElementById(parts[1]);
+    if (el){ try{ el.scrollIntoView({behavior:'instant', block:'start'}); }catch(e){ el.scrollIntoView(true); } }
+  }
+  window.__routing = false;
+}
+function navTo(h){
+  if (('#' + h) === location.hash){ applyHash(); return; }
+  location.hash = h;
+}
+window.addEventListener('hashchange', applyHash);
+
+function renderTrainView(id){
+  document.querySelectorAll('.tgview').forEach(function(v){ v.classList.remove('on'); });
+  var el = document.getElementById('v-' + id);
+  if (el) el.classList.add('on');
+  try{ window.scrollTo({top:0, behavior:'instant'}); }catch(e){ try{ window.scrollTo(0,0); }catch(e2){} }
+}
+
+/* Called by onclick handlers in the Trains markup */
+function show(id){ navTo(id === 'home' ? 'trains' : 'trains/' + id); }
+
+/* Jump within the Cities page (hero tags + sticky nav) — pure scroll, no history entry */
+function goToCity(id){ var el = document.getElementById(id); if (el) el.scrollIntoView({behavior:'smooth', block:'start'}); }
+
+/* Cross-links between the two guides. When a train badge is tapped inside a
+   city section, rewrite the current entry to that city first, so the back
+   gesture returns the user to their exact place in the Cities page. */
+function goToCityGuide(id){ navTo('trips/' + id); }
+function goToTrainRoute(id, fromCity){
+  if (fromCity){ try{ history.replaceState(null, '', '#trips/' + fromCity); }catch(e){} }
+  navTo('trains/' + id);
+}
+
+applyHash();
+
+/* ── Back-to-top button: appears on the Cities page after ~1.5 screens of scroll ── */
+(function(){
+  var btn = document.getElementById('toTop');
+  if (!btn) return;
+  function updateToTop(){
+    var on = currentTab === 'trips' && window.scrollY > window.innerHeight * 1.5;
+    btn.classList.toggle('showing', on);
+  }
+  window.addEventListener('scroll', updateToTop, {passive:true});
+  window.addEventListener('hashchange', updateToTop);
+  updateToTop();
+})();
 /* Scrollspy: highlight the current city in the sticky Trips nav */
 (function(){
   if(!('IntersectionObserver' in window))return;
