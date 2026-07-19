@@ -109,9 +109,10 @@ Andiamo! helps a traveler prepare for and get around Italy. It combines a phrase
 
 - **NFR-1.1** After its first load, the app must run fully offline, including all sections and audio.
 - **NFR-1.2** The app must be installable to a phone home screen and open full-screen, via a web app manifest.
-- **NFR-1.3** A service worker must cache the app on first load and serve it from cache thereafter.
+- **NFR-1.3** A service worker must cache the app on first load. The page itself must be served network-first with the cached copy as fallback, used when offline or when the network does not respond within a few seconds; icons and the manifest are served cache-first.
 - **NFR-1.4** The app must make no network requests at runtime and must reference no external scripts, styles, fonts, or images.
 - **NFR-1.5** The cache must be versioned so that redeploying updated files refreshes an already-installed copy.
+- **NFR-1.6** The app must check for a new service worker at launch and when returning to the foreground, and must reload itself exactly once when an updated service worker takes control. The hash route must preserve the user's screen across that reload. When online, a new deploy must be visible the first time the app is opened.
 
 ### 5.2 Privacy and data handling
 

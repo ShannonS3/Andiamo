@@ -40,7 +40,7 @@ Tap the + button on the Cards tab to add your own flashcards with the Italian, t
 
 ## Built with
 
-Plain HTML, CSS, and JavaScript in a single file. A small service worker caches the app so it loads with no network, and a web manifest lets it install to a home screen.
+Plain HTML, CSS, and JavaScript in a single file. A small service worker caches the app so it loads with no network, fetches the latest version when a connection is available, and a web manifest lets it install to a home screen.
 
 ## Development
 

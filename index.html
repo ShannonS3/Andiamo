@@ -2856,7 +2856,27 @@ applyHash();
 })();
 </script>
 <script>
-if ("serviceWorker" in navigator) { window.addEventListener("load", function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); }); }
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function(){
+    navigator.serviceWorker.register("sw.js").then(function(reg){
+      /* Check for a new version on every launch and whenever the app returns
+         to the foreground (installed apps resume rather than reload). */
+      reg.update();
+      document.addEventListener("visibilitychange", function(){
+        if (document.visibilityState === "visible") reg.update();
+      });
+    }).catch(function(){});
+  });
+  /* When an updated service worker takes control, reload once so the new
+     version is what's on screen. The hash router preserves the current
+     screen across the reload. */
+  var reloadedForUpdate = false;
+  navigator.serviceWorker.addEventListener("controllerchange", function(){
+    if (reloadedForUpdate) return;
+    reloadedForUpdate = true;
+    window.location.reload();
+  });
+}
 </script>
 </body>
 </html>
