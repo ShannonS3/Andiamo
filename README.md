@@ -6,11 +6,11 @@ Andiamo! is a single self-contained web page. It runs in any modern browser, ins
 
 ## What's inside
 
-The app has five tabs along the bottom.
+The app has four tabs along the bottom.
 
 ### Cards
 
-178 travel phrases you will actually use, grouped into Greetings, Getting Around, Eat & Shop, and Time & Numbers, plus a Custom category for your own. Tap a card to flip between Italian and English, tap the speaker to hear it, and mark "Lo so!" once you know it. Shuffle runs through the whole deck before any card comes back around, so nothing repeats until you have seen the rest.
+177 travel phrases you will actually use, grouped into Greetings, Getting Around, Eat & Shop, and Time & Numbers, plus a Custom category for your own. Tap a card to flip between Italian and English, tap the speaker to hear it, and mark "Lo so!" once you know it. Shuffle runs through the whole deck before any card comes back around, so nothing repeats until you have seen the rest.
 
 ### Culture
 
@@ -20,13 +20,13 @@ The app has five tabs along the bottom.
 
 A tap-through guide to the trip's train days: arriving into Italy, the run to Florence, and day trips to Bologna, Viareggio, and Venice, plus the flight home. Each route opens to travel times, platforms, connection notes, seat tips, and a plain-language reference for buying and validating tickets.
 
-### Trips
+### Cities
 
 An illustrated day-trip guide to nine cities within reach of Florence: Florence, Bologna, Prato, Viareggio, Venice, Milan, Verona, Rome, and San Gimignano. Each city covers food and drink, music, art, nightlife, offbeat sights, honest downsides, and insider tips.
 
-### Create
+### Your own cards
 
-Add your own flashcards with the Italian, the English, and a pronunciation guide. They save on your device and drop straight into the deck.
+Tap the + button on the Cards tab to add your own flashcards with the Italian, the English, and a pronunciation guide. They save on your device and drop straight into the deck.
 
 ## Highlights
 
@@ -40,3 +40,7 @@ Add your own flashcards with the Italian, the English, and a pronunciation guide
 ## Built with
 
 Plain HTML, CSS, and JavaScript in a single file. A small service worker caches the app so it loads with no network, and a web manifest lets it install to a home screen.
+
+## Development
+
+`tests/note-layout-check.mjs` is a dev-only regression check — it is not part of the deployed app and nothing in the app references it. It renders every flashcard's cultural note on both answer faces (the Italian face, with phrase + pronunciation + note, is the tallest case) across several viewport sizes and fails if any note is clipped. Run it after any card-layout change: `node tests/note-layout-check.mjs` (requires Node 18+ and Playwright with Chromium; set `CHROMIUM_PATH` to point at an existing Chromium build).
